@@ -17,7 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+      - name: Check new tag
+        run: |
+          if [ -z "${{ needs.check-for-changes.outputs.new_tag }}" ]; then
+            echo "No new tag found. Skipping Go package publication."
+            exit 1
+          fi
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
