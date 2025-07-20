@@ -2,16 +2,20 @@ name: Nightly Release
 
 on:
   schedule:
-    # Run at midnight UTC every day
     - cron: '0 0 * * *'
-  # Allow manual triggering
   workflow_dispatch:
+
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     outputs:
       changes_made: ${{ steps.commit_changes.outputs.changes_made }}
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,184 +31,57 @@ jobs:
         run: go run . generate
         
       - name: Check for changes
-        id: check_for_changes
-        run: |
-          if [[ -n "$(git status --porcelain)" ]]; then
-            echo "Changes detected after running generate command"
-            echo "CHANGES_DETECTED=true" >> $GITHUB_ENV
-          else
-            echo "No changes detected after running generate command"
-            echo "CHANGES_DETECTED=false" >> $GITHUB_ENV
-          fi
-          
-      - name: Commit changes
-        id: commit_changes
-        if: env.CHANGES_DETECTED == 'true'
+        id: git-diff
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Nightly update: $(date +'%Y-%m-%d')"
-          git push
-          echo "changes_made=true" >> $GITHUB_OUTPUT
-        
-      - name: No changes to commit
-        if: env.CHANGES_DETECTED == 'false'
-        run: |
-          echo "No changes to commit"
-          echo "changes_made=false" >> $GITHUB_OUTPUT
-          
-  check-for-changes:
-    needs: generate
-    runs-on: ubuntu-latest
-    outputs:
-      has_changes: ${{ steps.check_changes.outputs.has_changes }}
-      new_tag: ${{ steps.create_tag.outputs.new_tag }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Get latest release
-        id: latest_release
-        run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
-          echo "Latest tag: ${LATEST_TAG}"
-        continue-on-error: true
-        
-      - name: Check for changes since last release
-        id: check_changes
-        run: |
-          LATEST_TAG="${{ steps.latest_release.outputs.latest_tag }}"
-          
-          # Check if the tag exists in the repository
-          if [ "$LATEST_TAG" = "v0.0.0" ] || ! git rev-parse --verify "$LATEST_TAG" &>/dev/null; then
-            echo "No valid previous tag found, creating first release"
-            echo "has_changes=true" >> $GITHUB_OUTPUT
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
           else
-            CHANGES=$(git log --oneline ${LATEST_TAG}..HEAD)
-            if [ -n "$CHANGES" ]; then
-              echo "Changes found since last release"
-              echo "has_changes=true" >> $GITHUB_OUTPUT
-            else
-              echo "No changes since last release"
-              echo "has_changes=false" >> $GITHUB_OUTPUT
-            fi
+            git commit -m "Nightly update: $(date +'%Y-%m-%d')"
+            echo "changed=true" >> $GITHUB_OUTPUT
           fi
-          
-      - name: Create new tag
-        id: create_tag
-        if: steps.check_changes.outputs.has_changes == 'true'
+
+      - name: Push changes if any
+        if: steps.git-diff.outputs.changed == 'true'
+        run: git push origin main
+
+      - name: Get latest tag
+        if: steps.git-diff.outputs.changed == 'true'
+        id: get-version
         run: |
-          LATEST_TAG="${{ steps.latest_release.outputs.latest_tag }}"
-          if [ -z "$LATEST_TAG" ] || [ "$LATEST_TAG" == "v0.0.0" ]; then
-            NEW_TAG="v0.1.0"
+          latest=$(git tag --sort=-creatordate | head -n 1)
+          if [[ -z "$latest" ]]; then
+            next="v0.0.0"
           else
-            # Extract version components
-            MAJOR=$(echo $LATEST_TAG | sed 's/v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\1/')
-            MINOR=$(echo $LATEST_TAG | sed 's/v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\2/')
-            PATCH=$(echo $LATEST_TAG | sed 's/v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)/\3/')
-            
-            # Increment patch version
-            PATCH=$((PATCH + 1))
-            NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+            IFS='.' read -r major minor patch <<< "${latest#v}"
+            next="v$major.$((minor+1)).0"
           fi
-          
-          echo "Creating new tag: ${NEW_TAG}"
-          echo "new_tag=${NEW_TAG}" >> $GITHUB_OUTPUT
-          
-          # Configure git
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
-          # Create and push tag
-          git tag $NEW_TAG
-          git push origin $NEW_TAG
-  
-  build:
-    needs: check-for-changes
-    if: needs.check-for-changes.outputs.has_changes == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+          echo "next_tag=$next" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        if: steps.git-diff.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
         with:
-          fetch-depth: 0
+          tag_name: ${{ steps.get-version.outputs.next_tag }}
+          name: Release ${{ steps.get-version.outputs.next_tag }}
+          generate_release_notes: true
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.24'
-
-      - name: Run tests
-        run: go test -v ./pkg/...
-
-      - name: Build
-        run: go build -v .
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.check-for-changes.outputs.new_tag }}
-          name: Nightly Release ${{ needs.check-for-changes.outputs.new_tag }}
-          draft: false
-          prerelease: false
-          token: ${{ secrets.GITHUB_TOKEN }}
-          body: |
-            Automated nightly release created on $(date +'%Y-%m-%d')
-            
-            This release contains all changes since the previous release.
-
-      - name: Package data manifests
+      - name: Tag and push new version
+        if: steps.git-diff.outputs.changed == 'true'
         run: |
-          mkdir -p release/aws-meta-data
-          cp -r pkg/data/manifests/* release/aws-meta-data/
-          cd release
-          zip -r aws-meta-data.zip aws-meta-data/
-          
-      - name: Package services
+          git tag ${{ steps.get-version.outputs.next_tag }}
+          git push origin ${{ steps.get-version.outputs.next_tag }}
+
+      - name: Build Go binary
+        if: steps.git-diff.outputs.changed == 'true'
+        run: go build -o myapp ./path/to/your/main.go
+
+      - name: Publish Go module (Go proxy)
+        if: steps.git-diff.outputs.changed == 'true'
         run: |
-          mkdir -p release/aws-meta-services
-          cp pkg/services/list.go release/aws-meta-services/
-          cd release
-          zip -r aws-meta-services.zip aws-meta-services/
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.check-for-changes.outputs.new_tag }}
-          files: |
-            ./release/aws-meta-data.zip
-            ./release/aws-meta-services.zip
-            ./aws-meta
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-  publish-go-pkg:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.24'
-
-      - name: Publish Go packages
-        run: |
-          LATEST_TAG="${{ steps.latest_release.outputs.latest_tag }}"
-          echo "Tag: ${LATEST_TAG}"
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No new tag found. Skipping Go package publication."
-            exit 0
-          fi
-          GOPROXY=proxy.golang.org go list -m github.com/myerscode/aws-meta/pkg/data@${{ needs.check-for-changes.outputs.new_tag }}
-          GOPROXY=proxy.golang.org go list -m github.com/myerscode/aws-meta/pkg/services@${{ needs.check-for-changes.outputs.new_tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No special step needed – once the version tag is pushed,
+          # it is available via the public Go proxy:
+          # https://proxy.golang.org/<module>@v<version>
+          echo "Go module published at tag ${{ steps.get-version.outputs.next_tag }}"
