@@ -198,7 +198,9 @@ jobs:
 
       - name: Publish Go packages
         run: |
-          if [ -z "${{ needs.check-for-changes.outputs.new_tag }}" ]; then
+          LATEST_TAG="${{ steps.latest_release.outputs.latest_tag }}"
+          echo "Tag: ${LATEST_TAG}"
+          if [ -z "$LATEST_TAG" ]; then
             echo "No new tag found. Skipping Go package publication."
             exit 0
           fi
