@@ -60,23 +60,48 @@ jobs:
           fi
           echo "next_tag=$next" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub release
+      - name: Build Go binary
+        if: steps.git-diff.outputs.changed == 'true'
+        run: go build -o aws-meta .
+
+      - name: Package data manifests
+        if: steps.git-diff.outputs.changed == 'true'
+        run: |
+          mkdir -p release/aws-meta-data
+          cp -r pkg/data/manifests/* release/aws-meta-data/
+          cd release
+          zip -r aws-meta-data.zip aws-meta-data/
+          
+      - name: Package services
+        if: steps.git-diff.outputs.changed == 'true'
+        run: |
+          mkdir -p release/aws-meta-services
+          cp pkg/services/list.go release/aws-meta-services/
+          cd release
+          zip -r aws-meta-services.zip aws-meta-services/
+
+      - name: Create GitHub release with assets
         if: steps.git-diff.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.get-version.outputs.next_tag }}
           name: Release ${{ steps.get-version.outputs.next_tag }}
           generate_release_notes: true
+          files: |
+            ./release/aws-meta-data.zip
+            ./release/aws-meta-services.zip
+            ./aws-meta
+          body: |
+            Automated nightly release created on $(date +'%Y-%m-%d')
+            
+            This release contains all changes since the previous release.
+
 
       - name: Tag and push new version
         if: steps.git-diff.outputs.changed == 'true'
         run: |
           git tag ${{ steps.get-version.outputs.next_tag }}
           git push origin ${{ steps.get-version.outputs.next_tag }}
-
-      - name: Build Go binary
-        if: steps.git-diff.outputs.changed == 'true'
-        run: go build -o myapp ./path/to/your/main.go
 
       - name: Publish Go module (Go proxy)
         if: steps.git-diff.outputs.changed == 'true'
