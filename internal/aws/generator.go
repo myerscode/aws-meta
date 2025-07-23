@@ -11,11 +11,16 @@ import (
 
 type ServiceSchemas map[string]ServiceSchema
 type ServiceSchema struct {
-	APIVersion      string
-	ServiceId       string
-	ServiceFullName string
-	EndpointPrefix  string
-	Operations      []string
+	APIVersion       string
+	ServiceId        string
+	ServiceFullName  string
+	EndpointPrefix   string
+	GlobalEndpoint   string   `json:"GlobalEndpoint,omitempty"`
+	SignatureVersion string   `json:"SignatureVersion,omitempty"`
+	Protocol         string   `json:"Protocol,omitempty"`
+	JSONVersion      string   `json:"JSONVersion,omitempty"`
+	TargetPrefix     string   `json:"TargetPrefix,omitempty"`
+	Operations       []string `json:"Operations"`
 }
 
 type RegionSchemas []RegionSchema
