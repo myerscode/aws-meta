@@ -22,9 +22,15 @@ type DataSchema struct {
 	Operations map[string]Operations `json:"operations"`
 }
 type MetaData struct {
-	ServiceId       string `json:"serviceId"`
-	ServiceFullName string `json:"serviceFullName"`
-	EndpointPrefix  string `json:"endpointPrefix"`
+	ServiceId        string `json:"serviceId"`
+	ServiceFullName  string `json:"serviceFullName"`
+	EndpointPrefix   string `json:"endpointPrefix"`
+	GlobalEndpoint   string `json:"globalEndpoint,omitempty"`
+	SignatureVersion string `json:"signatureVersion,omitempty"`
+	Protocol         string `json:"protocol,omitempty"`
+	ApiVersion       string `json:"apiVersion"`
+	JSONVersion      string `json:"jsonVersion,omitempty"`
+	TargetPrefix     string `json:"targetPrefix,omitempty"`
 }
 type Operations struct {
 	Name string `json:"name"`
@@ -189,13 +195,21 @@ func generateServiceSchema(wg *sync.WaitGroup, bc Botocore, tag github.RepoTag, 
 		operations = append(operations, operation)
 	}
 
-	serviceSchemaChan <- ServiceSchema{
-		APIVersion:      dataSource.ApiVersion,
-		ServiceId:       dataSchema.Metadata.ServiceId,
-		ServiceFullName: dataSchema.Metadata.ServiceFullName,
-		EndpointPrefix:  dataSchema.Metadata.EndpointPrefix,
-		Operations:      util.Sort(operations),
+	// Create service schema with required fields
+	serviceSchema := ServiceSchema{
+		APIVersion:       dataSource.ApiVersion,
+		ServiceId:        dataSchema.Metadata.ServiceId,
+		ServiceFullName:  dataSchema.Metadata.ServiceFullName,
+		EndpointPrefix:   dataSchema.Metadata.EndpointPrefix,
+		GlobalEndpoint:   dataSchema.Metadata.GlobalEndpoint,
+		SignatureVersion: dataSchema.Metadata.SignatureVersion,
+		Protocol:         dataSchema.Metadata.Protocol,
+		JSONVersion:      dataSchema.Metadata.JSONVersion,
+		TargetPrefix:     dataSchema.Metadata.TargetPrefix,
+		Operations:       util.Sort(operations),
 	}
+
+	serviceSchemaChan <- serviceSchema
 }
 
 func (bc Botocore) getServiceDataSources(tag github.RepoTag) (BotoServiceDataSources, error) {
