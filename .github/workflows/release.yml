@@ -29,7 +29,9 @@ jobs:
           
       - name: Run generate command
         run: go run . generate
-        
+        env:
+          AWSMETA_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check for changes
         id: git-diff
         run: |
@@ -84,6 +86,7 @@ jobs:
         if: steps.git-diff.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.get-version.outputs.next_tag }}
           name: Release ${{ steps.get-version.outputs.next_tag }}
           generate_release_notes: true
