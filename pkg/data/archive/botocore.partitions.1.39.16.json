@@ -1,0 +1,278 @@
+[
+ {
+  "ID": "aws",
+  "RegionRegex": "^(us|eu|ap|sa|ca|me|af|il|mx)\\-\\w+\\-\\d+$",
+  "DNSSuffix": "amazonaws.com",
+  "DualStackDNSSuffix": "api.aws",
+  "ImplicitGlobalRegion": "us-east-1",
+  "Regions": [
+   {
+    "RegionId": "af-south-1",
+    "RegionName": "Africa (Cape Town)"
+   },
+   {
+    "RegionId": "ap-east-1",
+    "RegionName": "Asia Pacific (Hong Kong)"
+   },
+   {
+    "RegionId": "ap-east-2",
+    "RegionName": "Asia Pacific (Taipei)"
+   },
+   {
+    "RegionId": "ap-northeast-1",
+    "RegionName": "Asia Pacific (Tokyo)"
+   },
+   {
+    "RegionId": "ap-northeast-2",
+    "RegionName": "Asia Pacific (Seoul)"
+   },
+   {
+    "RegionId": "ap-northeast-3",
+    "RegionName": "Asia Pacific (Osaka)"
+   },
+   {
+    "RegionId": "ap-south-1",
+    "RegionName": "Asia Pacific (Mumbai)"
+   },
+   {
+    "RegionId": "ap-south-2",
+    "RegionName": "Asia Pacific (Hyderabad)"
+   },
+   {
+    "RegionId": "ap-southeast-1",
+    "RegionName": "Asia Pacific (Singapore)"
+   },
+   {
+    "RegionId": "ap-southeast-2",
+    "RegionName": "Asia Pacific (Sydney)"
+   },
+   {
+    "RegionId": "ap-southeast-3",
+    "RegionName": "Asia Pacific (Jakarta)"
+   },
+   {
+    "RegionId": "ap-southeast-4",
+    "RegionName": "Asia Pacific (Melbourne)"
+   },
+   {
+    "RegionId": "ap-southeast-5",
+    "RegionName": "Asia Pacific (Malaysia)"
+   },
+   {
+    "RegionId": "ap-southeast-7",
+    "RegionName": "Asia Pacific (Thailand)"
+   },
+   {
+    "RegionId": "aws-global",
+    "RegionName": "AWS Standard global region"
+   },
+   {
+    "RegionId": "ca-central-1",
+    "RegionName": "Canada (Central)"
+   },
+   {
+    "RegionId": "ca-west-1",
+    "RegionName": "Canada West (Calgary)"
+   },
+   {
+    "RegionId": "eu-central-1",
+    "RegionName": "Europe (Frankfurt)"
+   },
+   {
+    "RegionId": "eu-central-2",
+    "RegionName": "Europe (Zurich)"
+   },
+   {
+    "RegionId": "eu-north-1",
+    "RegionName": "Europe (Stockholm)"
+   },
+   {
+    "RegionId": "eu-south-1",
+    "RegionName": "Europe (Milan)"
+   },
+   {
+    "RegionId": "eu-south-2",
+    "RegionName": "Europe (Spain)"
+   },
+   {
+    "RegionId": "eu-west-1",
+    "RegionName": "Europe (Ireland)"
+   },
+   {
+    "RegionId": "eu-west-2",
+    "RegionName": "Europe (London)"
+   },
+   {
+    "RegionId": "eu-west-3",
+    "RegionName": "Europe (Paris)"
+   },
+   {
+    "RegionId": "il-central-1",
+    "RegionName": "Israel (Tel Aviv)"
+   },
+   {
+    "RegionId": "me-central-1",
+    "RegionName": "Middle East (UAE)"
+   },
+   {
+    "RegionId": "me-south-1",
+    "RegionName": "Middle East (Bahrain)"
+   },
+   {
+    "RegionId": "mx-central-1",
+    "RegionName": "Mexico (Central)"
+   },
+   {
+    "RegionId": "sa-east-1",
+    "RegionName": "South America (Sao Paulo)"
+   },
+   {
+    "RegionId": "us-east-1",
+    "RegionName": "US East (N. Virginia)"
+   },
+   {
+    "RegionId": "us-east-2",
+    "RegionName": "US East (Ohio)"
+   },
+   {
+    "RegionId": "us-west-1",
+    "RegionName": "US West (N. California)"
+   },
+   {
+    "RegionId": "us-west-2",
+    "RegionName": "US West (Oregon)"
+   }
+  ]
+ },
+ {
+  "ID": "aws-cn",
+  "RegionRegex": "^cn\\-\\w+\\-\\d+$",
+  "DNSSuffix": "amazonaws.com.cn",
+  "DualStackDNSSuffix": "api.amazonwebservices.com.cn",
+  "ImplicitGlobalRegion": "cn-northwest-1",
+  "Regions": [
+   {
+    "RegionId": "aws-cn-global",
+    "RegionName": "AWS China global region"
+   },
+   {
+    "RegionId": "cn-north-1",
+    "RegionName": "China (Beijing)"
+   },
+   {
+    "RegionId": "cn-northwest-1",
+    "RegionName": "China (Ningxia)"
+   }
+  ]
+ },
+ {
+  "ID": "aws-eusc",
+  "RegionRegex": "^eusc\\-(de)\\-\\w+\\-\\d+$",
+  "DNSSuffix": "amazonaws.eu",
+  "DualStackDNSSuffix": "amazonaws.eu",
+  "ImplicitGlobalRegion": "eusc-de-east-1",
+  "Regions": [
+   {
+    "RegionId": "eusc-de-east-1",
+    "RegionName": "EU (Germany)"
+   }
+  ]
+ },
+ {
+  "ID": "aws-iso",
+  "RegionRegex": "^us\\-iso\\-\\w+\\-\\d+$",
+  "DNSSuffix": "c2s.ic.gov",
+  "DualStackDNSSuffix": "c2s.ic.gov",
+  "ImplicitGlobalRegion": "us-iso-east-1",
+  "Regions": [
+   {
+    "RegionId": "aws-iso-global",
+    "RegionName": "AWS ISO (US) global region"
+   },
+   {
+    "RegionId": "us-iso-east-1",
+    "RegionName": "US ISO East"
+   },
+   {
+    "RegionId": "us-iso-west-1",
+    "RegionName": "US ISO WEST"
+   }
+  ]
+ },
+ {
+  "ID": "aws-iso-b",
+  "RegionRegex": "^us\\-isob\\-\\w+\\-\\d+$",
+  "DNSSuffix": "sc2s.sgov.gov",
+  "DualStackDNSSuffix": "sc2s.sgov.gov",
+  "ImplicitGlobalRegion": "us-isob-east-1",
+  "Regions": [
+   {
+    "RegionId": "aws-iso-b-global",
+    "RegionName": "AWS ISOB (US) global region"
+   },
+   {
+    "RegionId": "us-isob-east-1",
+    "RegionName": "US ISOB East (Ohio)"
+   }
+  ]
+ },
+ {
+  "ID": "aws-iso-e",
+  "RegionRegex": "^eu\\-isoe\\-\\w+\\-\\d+$",
+  "DNSSuffix": "cloud.adc-e.uk",
+  "DualStackDNSSuffix": "cloud.adc-e.uk",
+  "ImplicitGlobalRegion": "eu-isoe-west-1",
+  "Regions": [
+   {
+    "RegionId": "aws-iso-e-global",
+    "RegionName": "AWS ISOE (Europe) global region"
+   },
+   {
+    "RegionId": "eu-isoe-west-1",
+    "RegionName": "EU ISOE West"
+   }
+  ]
+ },
+ {
+  "ID": "aws-iso-f",
+  "RegionRegex": "^us\\-isof\\-\\w+\\-\\d+$",
+  "DNSSuffix": "csp.hci.ic.gov",
+  "DualStackDNSSuffix": "csp.hci.ic.gov",
+  "ImplicitGlobalRegion": "us-isof-south-1",
+  "Regions": [
+   {
+    "RegionId": "aws-iso-f-global",
+    "RegionName": "AWS ISOF global region"
+   },
+   {
+    "RegionId": "us-isof-east-1",
+    "RegionName": "US ISOF EAST"
+   },
+   {
+    "RegionId": "us-isof-south-1",
+    "RegionName": "US ISOF SOUTH"
+   }
+  ]
+ },
+ {
+  "ID": "aws-us-gov",
+  "RegionRegex": "^us\\-gov\\-\\w+\\-\\d+$",
+  "DNSSuffix": "amazonaws.com",
+  "DualStackDNSSuffix": "api.aws",
+  "ImplicitGlobalRegion": "us-gov-west-1",
+  "Regions": [
+   {
+    "RegionId": "aws-us-gov-global",
+    "RegionName": "AWS GovCloud (US) global region"
+   },
+   {
+    "RegionId": "us-gov-east-1",
+    "RegionName": "AWS GovCloud (US-East)"
+   },
+   {
+    "RegionId": "us-gov-west-1",
+    "RegionName": "AWS GovCloud (US-West)"
+   }
+  ]
+ }
+]
