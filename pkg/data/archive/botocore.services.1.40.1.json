@@ -14424,7 +14424,6 @@
    "DeleteConfigurationSet",
    "DeleteConfigurationSetEventDestination",
    "GetConfigurationSetEventDestinations",
-   "ListConfigurationSets",
    "SendVoiceMessage",
    "UpdateConfigurationSetEventDestination"
   ]
