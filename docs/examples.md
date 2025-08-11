@@ -52,10 +52,39 @@ See the `examples/` directory for complete, runnable code examples:
 - `examples/list_all.go` - General usage examples
 - `examples/services_in_region.go` - Demonstrates the `ServicesInRegion` function
 - `examples/service_operations.go` - Demonstrates the `ServiceOperations` function
+- `examples/partition_types.go` - Demonstrates partition categorization functions
 
 Run any example with:
 ```bash
 go run examples/example_name.go
+```
+
+## Partition Types
+
+Get partitions categorized by type:
+
+```go
+// Get commercial partitions (standard AWS)
+commercial, err := CommercialPartitions()
+if err != nil {
+    log.Fatal(err)
+}
+
+// Get sovereign partitions (China, GovCloud, EU Sovereign)
+sovereign, err := SovereignPartitions()
+if err != nil {
+    log.Fatal(err)
+}
+
+// Get isolated partitions (air-gapped environments)
+isolated, err := IsolatedPartitions()
+if err != nil {
+    log.Fatal(err)
+}
+
+fmt.Printf("Commercial: %v\n", commercial)
+fmt.Printf("Sovereign: %v\n", sovereign)
+fmt.Printf("Isolated: %v\n", isolated)
 ```
 
 ## Complete Example
