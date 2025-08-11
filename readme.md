@@ -34,6 +34,17 @@ AllServiceNames()
 // Returns a list of service names available in the specified region
 // Returns an error if the region name is invalid
 ServicesInRegion(regionName string) ([]string, error)
+
+// Returns a list of operation names available for the specified service ID
+// Returns an error if the service ID is invalid
+ServiceOperationsByServiceId(serviceId string) ([]string, error)
+
+// Returns a list of operation names available for the specified service name
+// Returns an error if the service name is invalid
+ServiceOperationsByServiceName(serviceName string) ([]string, error)
+
+// Alias for ServiceOperationsByServiceId for convenience
+ServiceOperations(serviceId string) ([]string, error)
 ```
 
 ### Services In Region
@@ -51,12 +62,41 @@ for _, service := range services {
 }
 ```
 
+### Service Operations
+
+Get all operations available for a specific AWS service by Service ID:
+
+```go
+operations, err := ServiceOperationsByServiceId("ACM")
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, operation := range operations {
+    fmt.Println(operation)
+}
+```
+
+Or by Service Name:
+
+```go
+operations, err := ServiceOperationsByServiceName("AWS Certificate Manager")
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, operation := range operations {
+    fmt.Println(operation)
+}
+```
+
 ## Examples
 
 See the `examples/` directory for working code examples:
 
 - `examples/list_all.go` - General usage examples
 - `examples/services_in_region.go` - Demonstrates the `ServicesInRegion` function
+- `examples/service_operations.go` - Demonstrates the `ServiceOperations` function
 
 Run any example with:
 ```bash
