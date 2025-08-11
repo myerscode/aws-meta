@@ -41,7 +41,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
-            git commit -m "Nightly update: $(date +'%Y-%m-%d')"
+            current_date=$(date +'%Y-%m-%d')
+            git commit -m "Nightly update: $current_date"
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
@@ -82,6 +83,11 @@ jobs:
           cd release
           zip -r aws-meta-services.zip aws-meta-services/
 
+      - name: Get current date
+        if: steps.git-diff.outputs.changed == 'true'
+        id: date
+        run: echo "current=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
       - name: Create GitHub release with assets
         if: steps.git-diff.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
@@ -95,7 +101,7 @@ jobs:
             ./release/aws-meta-services.zip
             ./aws-meta
           body: |
-            Automated nightly release created on $(date +'%Y-%m-%d')
+            Automated nightly release created on ${{ steps.date.outputs.current }}
             
             This release contains all changes since the previous release.
 
