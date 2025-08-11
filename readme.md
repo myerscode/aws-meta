@@ -5,100 +5,30 @@
 Knowing what AWS services are available in which regions and partitions can be a bit of a pain; 
 this app aims to keep an up to date reference for the available endpoints for all AWS services.
 
-## Partitions
+## Features
+
+- **Partitions**: Get all AWS partition names (aws, aws-cn, aws-us-gov)
+- **Regions**: List all AWS regions across all partitions
+- **Services**: Access AWS service information and operations
+- **Regional Services**: Find which services are available in specific regions
+- **Service Operations**: Get all available operations for any AWS service
+
+## Quick Start
 
 ```go
-// Returns a list of all AWS partition names
-AllPartitionNames()
+import "github.com/myerscode/aws-meta/pkg/services"
+
+// Get all regions
+regions := services.AllRegionNames()
+
+// Get services in a region
+servicesInRegion, err := services.ServicesInRegion("us-east-1")
+
+// Get operations for a service
+operations, err := services.ServiceOperations("S3")
 ```
 
-### Isolated
+## Documentation
 
-### Sovereign
-
-## Regions
-
-```go
-// Returns a list of all AWS region names
-AllRegionNames()
-```
-
-### Regions For Partition
-
-## Services
-
-```go
-// Returns a list of all AWS service names
-AllServiceNames()
-
-// Returns a list of service names available in the specified region
-// Returns an error if the region name is invalid
-ServicesInRegion(regionName string) ([]string, error)
-
-// Returns a list of operation names available for the specified service ID
-// Returns an error if the service ID is invalid
-ServiceOperationsByServiceId(serviceId string) ([]string, error)
-
-// Returns a list of operation names available for the specified service name
-// Returns an error if the service name is invalid
-ServiceOperationsByServiceName(serviceName string) ([]string, error)
-
-// Alias for ServiceOperationsByServiceId for convenience
-ServiceOperations(serviceId string) ([]string, error)
-```
-
-### Services In Region
-
-Get all services available in a specific AWS region:
-
-```go
-services, err := ServicesInRegion("us-east-1")
-if err != nil {
-    log.Fatal(err)
-}
-
-for _, service := range services {
-    fmt.Println(service)
-}
-```
-
-### Service Operations
-
-Get all operations available for a specific AWS service by Service ID:
-
-```go
-operations, err := ServiceOperationsByServiceId("ACM")
-if err != nil {
-    log.Fatal(err)
-}
-
-for _, operation := range operations {
-    fmt.Println(operation)
-}
-```
-
-Or by Service Name:
-
-```go
-operations, err := ServiceOperationsByServiceName("AWS Certificate Manager")
-if err != nil {
-    log.Fatal(err)
-}
-
-for _, operation := range operations {
-    fmt.Println(operation)
-}
-```
-
-## Examples
-
-See the `examples/` directory for working code examples:
-
-- `examples/list_all.go` - General usage examples
-- `examples/services_in_region.go` - Demonstrates the `ServicesInRegion` function
-- `examples/service_operations.go` - Demonstrates the `ServiceOperations` function
-
-Run any example with:
-```bash
-go run examples/example_name.go
-```
+- [Methods Reference](docs/methods.md) - Complete API documentation for all functions
+- [Examples](docs/examples.md) - Usage examples and complete code samples
