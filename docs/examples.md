@@ -53,6 +53,7 @@ See the `examples/` directory for complete, runnable code examples:
 - `examples/services_in_region.go` - Demonstrates the `ServicesInRegion` function
 - `examples/service_operations.go` - Demonstrates the `ServiceOperations` function
 - `examples/partition_types.go` - Demonstrates partition categorization functions
+- `examples/list_partitions.go` - Demonstrates detailed partition information
 
 Run any example with:
 ```bash
@@ -85,6 +86,33 @@ if err != nil {
 fmt.Printf("Commercial: %v\n", commercial)
 fmt.Printf("Sovereign: %v\n", sovereign)
 fmt.Printf("Isolated: %v\n", isolated)
+```
+
+## Detailed Partition Information
+
+Get comprehensive partition data including DNS suffixes and region details:
+
+```go
+import "github.com/myerscode/aws-meta/pkg/partitions"
+
+partitionList, err := partitions.ListPartitions()
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, partition := range partitionList {
+    fmt.Printf("Partition: %s\n", partition.ID)
+    fmt.Printf("  DNS Suffix: %s\n", partition.DNSSuffix)
+    fmt.Printf("  Region Pattern: %s\n", partition.RegionRegex)
+    fmt.Printf("  Global Region: %s\n", partition.ImplicitGlobalRegion)
+    fmt.Printf("  Regions: %d\n", len(partition.Regions))
+    
+    // Show first few regions
+    for i, region := range partition.Regions {
+        if i >= 3 { break } // Show only first 3
+        fmt.Printf("    - %s (%s)\n", region.RegionId, region.RegionName)
+    }
+}
 ```
 
 ## Complete Example

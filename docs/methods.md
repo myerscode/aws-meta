@@ -22,6 +22,43 @@ fmt.Printf("Available partitions: %v\n", partitions)
 // Output: Available partitions: [aws aws-cn aws-us-gov]
 ```
 
+### ListPartitions()
+
+Returns detailed information about all AWS partitions including DNS suffixes, region patterns, and region lists.
+
+```go
+func ListPartitions() (aws.PartitionSchemas, error)
+```
+
+**Package:** `github.com/myerscode/aws-meta/pkg/partitions`
+
+**Returns:**
+- `aws.PartitionSchemas`: A slice of partition schemas containing detailed partition information
+- `error`: An error if there's an issue reading the manifest
+
+**Example:**
+```go
+import "github.com/myerscode/aws-meta/pkg/partitions"
+
+partitionList, err := partitions.ListPartitions()
+if err != nil {
+    log.Fatal(err)
+}
+for _, partition := range partitionList {
+    fmt.Printf("Partition: %s\n", partition.ID)
+    fmt.Printf("  DNS Suffix: %s\n", partition.DNSSuffix)
+    fmt.Printf("  Regions: %d\n", len(partition.Regions))
+}
+```
+
+**Partition Schema Fields:**
+- `ID`: Partition identifier (e.g., "aws", "aws-cn")
+- `DNSSuffix`: DNS suffix for the partition (e.g., "amazonaws.com")
+- `DualStackDNSSuffix`: Dual-stack DNS suffix
+- `RegionRegex`: Regular expression pattern for region names
+- `ImplicitGlobalRegion`: Default global region for the partition
+- `Regions`: Array of regions within the partition
+
 **Partitions Include:**
 - **aws**: Standard AWS partition (most regions)
 - **aws-cn**: China partition (Beijing and Ningxia regions)
