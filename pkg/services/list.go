@@ -35,22 +35,6 @@ func serviceManifest() (aws.ServiceSchemas, error) {
 	return manifest, nil
 }
 
-func AllPartitionNames() []string {
-	manifest, err := partitionManifest()
-
-	var partitionNames []string
-
-	if err != nil {
-		return partitionNames
-	}
-
-	for _, meta := range manifest {
-		partitionNames = append(partitionNames, meta.ID)
-	}
-
-	return partitionNames
-}
-
 func AllRegionNames() []string {
 	manifest, err := regionManifest()
 

@@ -11,7 +11,7 @@ import (
 func main() {
 	util.LogInfo("=== AWS Partitions Detailed Information ===")
 
-	partitionList, err := partitions.ListPartitions()
+	partitionList, err := partitions.List()
 	if err != nil {
 		util.LogError(fmt.Sprintf("Failed to get partition list: %v", err))
 		return

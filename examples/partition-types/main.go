@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/myerscode/aws-meta/internal/util"
-	"github.com/myerscode/aws-meta/pkg/services"
+	"github.com/myerscode/aws-meta/pkg/partitions"
 )
 
 func main() {
 	// Test Commercial Partitions
 	util.LogInfo("=== Commercial Partitions ===")
-	commercial, err := services.CommercialPartitions()
+	commercial, err := partitions.CommercialPartitions()
 	if err != nil {
 		util.LogError(fmt.Sprintf("Failed to get commercial partitions: %v", err))
 	} else {
@@ -23,7 +23,7 @@ func main() {
 
 	// Test Sovereign Partitions
 	util.LogInfo("=== Sovereign Partitions ===")
-	sovereign, err := services.SovereignPartitions()
+	sovereign, err := partitions.SovereignPartitions()
 	if err != nil {
 		util.LogError(fmt.Sprintf("Failed to get sovereign partitions: %v", err))
 	} else {
@@ -36,7 +36,7 @@ func main() {
 
 	// Test Isolated Partitions
 	util.LogInfo("=== Isolated Partitions ===")
-	isolated, err := services.IsolatedPartitions()
+	isolated, err := partitions.IsolatedPartitions()
 	if err != nil {
 		util.LogError(fmt.Sprintf("Failed to get isolated partitions: %v", err))
 	} else {
@@ -49,7 +49,7 @@ func main() {
 
 	// Summary
 	util.LogInfo("=== Summary ===")
-	allPartitions := services.AllPartitionNames()
+	allPartitions := partitions.AllPartitionNames()
 	totalCategorized := len(commercial) + len(sovereign) + len(isolated)
 
 	util.LogInfo(fmt.Sprintf("Total partitions: %d", len(allPartitions)))

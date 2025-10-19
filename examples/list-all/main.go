@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/myerscode/aws-meta/internal/util"
+	"github.com/myerscode/aws-meta/pkg/partitions"
 	"github.com/myerscode/aws-meta/pkg/services"
 )
 
@@ -17,7 +18,7 @@ func main() {
 
 	util.LogInfo(fmt.Sprintf("AllRegionNames() returned %d region names", len(regionNames)))
 
-	partitionNames := services.AllPartitionNames()
+	partitionNames := partitions.AllPartitionNames()
 
 	util.LogInfo(fmt.Sprintf("AllPartitionNames() returned %d partition names", len(partitionNames)))
 }
