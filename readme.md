@@ -30,5 +30,7 @@ operations, err := services.ServiceOperations("S3")
 
 ## Documentation
 
-- [Methods Reference](docs/methods.md) - Complete API documentation for all functions
+- [API Reference](docs/methods.md) - Overview of all packages and functions
+- [Partitions Package](docs/partitions.md) - Partition-related functions
+- [Services Package](docs/services.md) - Service and region functions
 - [Examples](docs/examples.md) - Usage examples and complete code samples

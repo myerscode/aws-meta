@@ -65,20 +65,22 @@ go run examples/example_name.go
 Get partitions categorized by type:
 
 ```go
+import "github.com/myerscode/aws-meta/pkg/partitions"
+
 // Get commercial partitions (standard AWS)
-commercial, err := CommercialPartitions()
+commercial, err := partitions.CommercialPartitions()
 if err != nil {
     log.Fatal(err)
 }
 
 // Get sovereign partitions (China, GovCloud, EU Sovereign)
-sovereign, err := SovereignPartitions()
+sovereign, err := partitions.SovereignPartitions()
 if err != nil {
     log.Fatal(err)
 }
 
 // Get isolated partitions (air-gapped environments)
-isolated, err := IsolatedPartitions()
+isolated, err := partitions.IsolatedPartitions()
 if err != nil {
     log.Fatal(err)
 }
@@ -95,7 +97,7 @@ Get comprehensive partition data including DNS suffixes and region details:
 ```go
 import "github.com/myerscode/aws-meta/pkg/partitions"
 
-partitionList, err := partitions.ListPartitions()
+partitionList, err := partitions.List()
 if err != nil {
     log.Fatal(err)
 }
@@ -126,10 +128,15 @@ import (
     "fmt"
     "log"
 
+    "github.com/myerscode/aws-meta/pkg/partitions"
     "github.com/myerscode/aws-meta/pkg/services"
 )
 
 func main() {
+    // Get all partitions
+    partitionNames := partitions.AllPartitionNames()
+    fmt.Printf("Found %d partitions\n", len(partitionNames))
+
     // Get all regions
     regions := services.AllRegionNames()
     fmt.Printf("Found %d regions\n", len(regions))
