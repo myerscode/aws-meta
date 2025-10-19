@@ -10,6 +10,84 @@ import "github.com/myerscode/aws-meta/pkg/services"
 
 ## Functions
 
+### ServiceMeta()
+
+Returns detailed information about all AWS services including service IDs, full names, operations, and metadata.
+
+```go
+func ServiceMeta() (aws.ServiceSchemas, error)
+```
+
+**Returns:**
+- `aws.ServiceSchemas`: A map of service schemas containing detailed service information (keyed by service ID)
+- `error`: An error if there's an issue reading the manifest
+
+**Example:**
+```go
+services, err := services.ServiceMeta()
+if err != nil {
+    log.Fatal(err)
+}
+for serviceId, service := range services {
+    fmt.Printf("Service: %s\n", service.ServiceFullName)
+    fmt.Printf("  ID: %s\n", service.ServiceId)
+    fmt.Printf("  Operations: %d\n", len(service.Operations))
+    fmt.Printf("  Protocol: %s\n", service.Protocol)
+}
+```
+
+**Service Schema Fields:**
+- `ServiceId`: Service identifier (e.g., "S3", "EC2", "Lambda")
+- `ServiceFullName`: Full service name (e.g., "Amazon Simple Storage Service")
+- `APIVersion`: API version for the service
+- `EndpointPrefix`: Endpoint prefix used in service URLs
+- `Protocol`: Communication protocol (e.g., "rest-xml", "json")
+- `Operations`: Array of available operations for the service
+- `GlobalEndpoint`: Global endpoint URL (if applicable)
+- `SignatureVersion`: AWS signature version used
+- `JSONVersion`: JSON version (for JSON-based services)
+- `TargetPrefix`: Target prefix (for JSON-based services)
+
+### ServiceMetaForRegion(regionName string) (aws.ServiceSchemas, error)
+
+Returns detailed information about AWS services available in the specified region. This function combines the regional availability data with comprehensive service metadata.
+
+```go
+func ServiceMetaForRegion(regionName string) (aws.ServiceSchemas, error)
+```
+
+**Parameters:**
+- `regionName`: The AWS region name (e.g., "us-east-1", "eu-west-1")
+
+**Returns:**
+- `aws.ServiceSchemas`: A map of service schemas containing detailed service information for services available in the region
+- `error`: An error if the region name is invalid or if there's an issue reading the manifest
+
+**Example:**
+```go
+services, err := services.ServiceMetaForRegion("us-east-1")
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Found %d services available in us-east-1\n", len(services))
+for serviceId, service := range services {
+    fmt.Printf("Service: %s\n", service.ServiceFullName)
+    fmt.Printf("  ID: %s\n", service.ServiceId)
+    fmt.Printf("  Endpoint: %s\n", service.EndpointPrefix)
+    fmt.Printf("  Operations: %d\n", len(service.Operations))
+}
+```
+
+**Notes:**
+- The returned services are filtered to only include those available in the specified region
+- Some endpoint prefixes may map to multiple services (e.g., "rds" includes RDS, Neptune, and DocumentDB)
+- The function returns the same service metadata structure as `ServiceMeta()` but filtered by regional availability
+
+**Error Cases:**
+- Invalid region name: `invalid region name: invalid-region-123`
+- Empty region name: `invalid region name: `
+- Case sensitivity: Region names must match exactly (e.g., "us-east-1", not "US-EAST-1")
+
 ### AllRegionNames()
 
 Returns a list of all AWS region names across all partitions.

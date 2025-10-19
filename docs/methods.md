@@ -20,6 +20,8 @@ Functions for working with AWS partitions:
 **Import:** `github.com/myerscode/aws-meta/pkg/services`
 
 Functions for working with AWS services and regions:
+- `ServiceMeta()` - Get detailed service metadata for all services
+- `ServiceMetaForRegion()` - Get detailed service metadata for services in a specific region
 - `AllRegionNames()` - Get all region names
 - `AllServiceNames()` - Get all service names
 - `ServicesInRegion()` - Get services available in a region
@@ -48,16 +50,23 @@ if err != nil {
 ```go
 import "github.com/myerscode/aws-meta/pkg/services"
 
-// Get all regions
-regions := services.AllRegionNames()
-fmt.Printf("Total regions: %d\n", len(regions))
-
-// Get services in a specific region
-serviceList, err := services.ServicesInRegion("us-east-1")
+// Get detailed service metadata
+allServices, err := services.ServiceMeta()
 if err != nil {
     log.Fatal(err)
 }
-fmt.Printf("Services in us-east-1: %d\n", len(serviceList))
+fmt.Printf("Total services: %d\n", len(allServices))
+
+// Get detailed service metadata for a specific region
+regionServices, err := services.ServiceMetaForRegion("us-east-1")
+if err != nil {
+    log.Fatal(err)
+}
+fmt.Printf("Services available in us-east-1: %d\n", len(regionServices))
+
+// Get all regions
+regions := services.AllRegionNames()
+fmt.Printf("Total regions: %d\n", len(regions))
 ```
 
 ## Data Sources

@@ -5,16 +5,6 @@ import (
 	"github.com/myerscode/aws-meta/pkg/data"
 )
 
-func partitionManifest() (aws.PartitionSchemas, error) {
-	manifest, err := data.PartitionManifest()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return manifest, nil
-}
-
 func regionManifest() (aws.RegionSchemas, error) {
 	manifest, err := data.RegionsManifest()
 
