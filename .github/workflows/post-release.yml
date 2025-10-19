@@ -1,0 +1,94 @@
+name: Post Release Actions
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  update-documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Update README with latest version
+        run: |
+          # Get the release tag from the event
+          latest_tag="${{ github.event.release.tag_name }}"
+          
+          # Update README.md with the latest version in installation instructions
+          if [ -f README.md ]; then
+            # Update go get command with latest version
+            sed -i "s|go get github.com/myerscode/aws-meta@v[0-9]*\.[0-9]*\.[0-9]*|go get github.com/myerscode/aws-meta@$latest_tag|g" README.md
+            sed -i "s|go get github.com/myerscode/aws-meta$|go get github.com/myerscode/aws-meta@$latest_tag|g" README.md
+          fi
+
+      - name: Update documentation with latest examples
+        run: |
+          latest_tag="${{ github.event.release.tag_name }}"
+          
+          # Update all documentation files with the latest version
+          find docs/ -name "*.md" -type f -exec sed -i "s|go get github.com/myerscode/aws-meta@v[0-9]*\.[0-9]*\.[0-9]*|go get github.com/myerscode/aws-meta@$latest_tag|g" {} \;
+          find docs/ -name "*.md" -type f -exec sed -i "s|go get github.com/myerscode/aws-meta$|go get github.com/myerscode/aws-meta@$latest_tag|g" {} \;
+
+      - name: Commit documentation updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if git diff --quiet; then
+            echo "No documentation updates needed"
+          else
+            git add README.md docs/
+            git commit -m "docs: update installation instructions with latest version ${{ github.event.release.tag_name }}"
+            git push origin main
+          fi
+
+  verify-go-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Go proxy indexing
+        run: sleep 60  # Wait 1 minute for Go proxy to index
+
+      - name: Verify Go package availability
+        run: |
+          tag_name="${{ github.event.release.tag_name }}"
+          module="github.com/myerscode/aws-meta"
+          
+          echo "🎉 New Go package release: $module@$tag_name"
+          echo ""
+          echo "📦 Installation:"
+          echo "go get $module@$tag_name"
+          echo ""
+          echo "🔗 Links:"
+          echo "- Release: ${{ github.event.release.html_url }}"
+          echo "- Go Proxy: https://proxy.golang.org/$module/@v/$tag_name.info"
+          echo "- pkg.go.dev: https://pkg.go.dev/$module@$tag_name"
+          echo ""
+          echo "📚 Documentation:"
+          echo "- API Reference: https://github.com/myerscode/aws-meta/blob/main/docs/methods.md"
+          echo "- Partitions Package: https://github.com/myerscode/aws-meta/blob/main/docs/partitions.md"
+          echo "- Services Package: https://github.com/myerscode/aws-meta/blob/main/docs/services.md"
+          
+          # Try to verify the module is available
+          max_attempts=3
+          attempt=1
+          
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt/$max_attempts: Checking module availability..."
+            
+            if go list -m "$module@$tag_name" >/dev/null 2>&1; then
+              echo "✅ Go module successfully published and available!"
+              break
+            else
+              echo "⏳ Module not yet available, waiting..."
+              sleep 30
+              attempt=$((attempt + 1))
+            fi
+          done

@@ -1,0 +1,86 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Create as prerelease'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  manual-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          install-only: true
+
+      - name: Get latest tag and calculate next version
+        id: get-version
+        run: |
+          latest=$(git tag --sort=-version:refname | head -n 1)
+          if [[ -z "$latest" ]]; then
+            next="v0.1.0"
+          else
+            # Extract version numbers
+            version=${latest#v}
+            IFS='.' read -r major minor patch <<< "$version"
+            
+            case "${{ github.event.inputs.version_type }}" in
+              "major")
+                next="v$((major+1)).0.0"
+                ;;
+              "minor")
+                next="v$major.$((minor+1)).0"
+                ;;
+              "patch")
+                next="v$major.$minor.$((patch+1))"
+                ;;
+            esac
+          fi
+          
+          echo "next_tag=$next" >> $GITHUB_OUTPUT
+          echo "Previous tag: $latest"
+          echo "Next tag: $next"
+
+      - name: Create and push tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag ${{ steps.get-version.outputs.next_tag }}
+          git push origin ${{ steps.get-version.outputs.next_tag }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean ${{ github.event.inputs.prerelease == 'true' && '--snapshot' || '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

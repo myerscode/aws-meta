@@ -1,0 +1,121 @@
+version: 2
+
+project_name: aws-meta
+
+before:
+  hooks:
+    # Run tests and linting before building
+    - go mod tidy
+    - go test ./...
+    - golangci-lint run
+
+builds:
+  - id: aws-meta
+    main: .
+    binary: aws-meta
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: default
+    files:
+      - README.md
+      - LICENSE*
+      - docs/**/*
+      - pkg/data/manifests/**/*
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - '^build:'
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 'Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: 'Performance improvements'
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others
+      order: 999
+
+release:
+  github:
+    owner: myerscode
+    name: aws-meta
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## AWS Metadata {{ .Tag }}
+    
+    This release contains the latest AWS service, region, and partition data.
+    
+    ### Go Package Usage
+    
+    ```bash
+    go get github.com/myerscode/aws-meta@{{ .Tag }}
+    ```
+    
+    ### Quick Start
+    
+    ```go
+    import (
+        "github.com/myerscode/aws-meta/pkg/partitions"
+        "github.com/myerscode/aws-meta/pkg/services"
+    )
+    
+    // Get all partitions
+    partitions := partitions.AllPartitionNames()
+    
+    // Get services in a region
+    services, err := services.ServiceMetaForRegion("us-east-1")
+    ```
+    
+    ### Documentation
+    
+    - [API Reference](https://github.com/myerscode/aws-meta/blob/main/docs/methods.md)
+    - [Partitions Package](https://github.com/myerscode/aws-meta/blob/main/docs/partitions.md)
+    - [Services Package](https://github.com/myerscode/aws-meta/blob/main/docs/services.md)
+    - [pkg.go.dev](https://pkg.go.dev/github.com/myerscode/aws-meta@{{ .Tag }})
+
+  footer: |
+    **Full Changelog**: https://github.com/myerscode/aws-meta/compare/{{ .PreviousTag }}...{{ .Tag }}
+    
+    ---
+    
+    🤖 This release was automatically generated from the latest AWS data.
+  
+  extra_files:
+    - glob: ./pkg/data/manifests/**/*
+    - glob: ./docs/**/*
+
+# Announce the release
+announce:
+  skip: '{{gt .Patch 0}}'  # Only announce minor/major releases, not patches
