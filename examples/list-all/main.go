@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/myerscode/aws-meta/internal/util"
 	"github.com/myerscode/aws-meta/pkg/services"
 )

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/myerscode/aws-meta/examples/shared"
 	"github.com/myerscode/aws-meta/internal/util"
 	"github.com/myerscode/aws-meta/pkg/services"
 )
@@ -21,7 +22,7 @@ func main() {
 		}
 		util.LogInfo(fmt.Sprintf("Found %d operations for %s", len(operations), serviceId))
 		if len(operations) > 0 {
-			util.LogInfo(fmt.Sprintf("First few operations: %v", operations[:min(5, len(operations))]))
+			util.LogInfo(fmt.Sprintf("First few operations: %v", operations[:shared.Min(5, len(operations))]))
 		}
 		fmt.Println() // Add spacing between services
 	}
@@ -44,7 +45,7 @@ func main() {
 		}
 		util.LogInfo(fmt.Sprintf("Found %d operations for '%s'", len(operations), serviceName))
 		if len(operations) > 0 {
-			util.LogInfo(fmt.Sprintf("First few operations: %v", operations[:min(3, len(operations))]))
+			util.LogInfo(fmt.Sprintf("First few operations: %v", operations[:shared.Min(3, len(operations))]))
 		}
 		fmt.Println() // Add spacing between services
 	}
@@ -97,11 +98,4 @@ func main() {
 	} else {
 		util.LogInfo(fmt.Sprintf("ServiceOperations alias works: Found %d operations for ACM", len(operations)))
 	}
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

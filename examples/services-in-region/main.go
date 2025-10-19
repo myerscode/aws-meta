@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/myerscode/aws-meta/examples/shared"
 	"github.com/myerscode/aws-meta/internal/util"
 	"github.com/myerscode/aws-meta/pkg/services"
 )
@@ -18,7 +19,7 @@ func main() {
 	}
 	util.LogInfo(fmt.Sprintf("Found %d services in us-east-1", len(servicesUSEast1)))
 	if len(servicesUSEast1) > 0 {
-		util.LogInfo(fmt.Sprintf("First few services: %v", servicesUSEast1[:min(5, len(servicesUSEast1))]))
+		util.LogInfo(fmt.Sprintf("First few services: %v", servicesUSEast1[:shared.Min(5, len(servicesUSEast1))]))
 	}
 
 	util.LogInfo("Testing ServicesInRegion with eu-west-1:")
@@ -37,11 +38,4 @@ func main() {
 	} else {
 		util.LogError("ERROR: Should have gotten an error for invalid region")
 	}
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
