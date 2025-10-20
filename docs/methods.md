@@ -16,6 +16,12 @@ Functions for working with AWS partitions:
 - `SovereignPartitions()` - Get sovereign partitions  
 - `IsolatedPartitions()` - Get isolated partitions
 
+### [Regions Package](regions.md)
+**Import:** `github.com/myerscode/aws-meta/pkg/regions`
+
+Functions for working with AWS regions:
+- `ListAllRegions()` - Get comprehensive region information with partition mapping and service availability
+
 ### [Services Package](services.md)
 **Import:** `github.com/myerscode/aws-meta/pkg/services`
 
@@ -46,6 +52,23 @@ if err != nil {
 }
 ```
 
+### Working with Regions
+```go
+import "github.com/myerscode/aws-meta/pkg/regions"
+
+// Get comprehensive region information
+regionList, err := regions.ListAllRegions()
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, region := range regionList {
+    fmt.Printf("Region: %s (%s)\n", region.RegionId, region.RegionName)
+    fmt.Printf("  Partition: %s\n", region.PartitionID)
+    fmt.Printf("  Services: %d\n", len(region.Services))
+}
+```
+
 ### Working with Services and Regions
 ```go
 import "github.com/myerscode/aws-meta/pkg/services"
@@ -67,7 +90,12 @@ fmt.Printf("Services available in us-east-1: %d\n", len(regionServices))
 // Get all regions
 regions := services.AllRegionNames()
 fmt.Printf("Total regions: %d\n", len(regions))
+for _, region := range regions[:5] { // Show first 5
+    fmt.Printf("  - %s\n", region)
+}
 ```
+
+For detailed documentation on each package's functions, see the individual package documentation pages linked above.
 
 ## Data Sources
 
@@ -102,3 +130,4 @@ For complete, runnable examples, see the `examples/` directory:
 - `examples/service-operations/` - Service operation listings
 - `examples/partition-types/` - Partition categorization
 - `examples/list-partitions/` - Detailed partition information
+- `examples/list-regions/` - Comprehensive region information

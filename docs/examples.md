@@ -54,6 +54,7 @@ See the `examples/` directory for complete, runnable code examples:
 - `examples/service_operations.go` - Demonstrates the `ServiceOperations` function
 - `examples/partition_types.go` - Demonstrates partition categorization functions
 - `examples/list_partitions.go` - Demonstrates detailed partition information
+- `examples/list_regions.go` - Demonstrates comprehensive region information
 
 Run any example with:
 ```bash
@@ -113,6 +114,31 @@ for _, partition := range partitionList {
     for i, region := range partition.Regions {
         if i >= 3 { break } // Show only first 3
         fmt.Printf("    - %s (%s)\n", region.RegionId, region.RegionName)
+    }
+}
+```
+
+## Comprehensive Region Information
+
+Get detailed information about all regions including partition mapping and service counts:
+
+```go
+import "github.com/myerscode/aws-meta/pkg/regions"
+
+regionList, err := regions.ListAllRegions()
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, region := range regionList {
+    fmt.Printf("Region: %s (%s)\n", region.RegionId, region.RegionName)
+    fmt.Printf("  Partition: %s\n", region.PartitionID)
+    fmt.Printf("  Services: %d\n", len(region.Services))
+    
+    // Show first few services
+    for i, service := range region.Services {
+        if i >= 3 { break } // Show only first 3
+        fmt.Printf("    - %s\n", service)
     }
 }
 ```
