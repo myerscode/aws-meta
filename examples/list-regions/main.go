@@ -68,7 +68,7 @@ func main() {
 	fmt.Println()
 
 	// Find regions with most and least services
-	var maxServices, minServices int = 0, 999999
+	var maxServices, minServices = 0, 999999
 	var maxRegion, minRegion regions.RegionInfo
 
 	for _, region := range regionList {
@@ -100,24 +100,24 @@ func main() {
 
 		for _, region := range awsRegions {
 			// Simple geographic grouping based on region prefix
-			switch {
-			case region.RegionId[:2] == "us":
+			switch region.RegionId[:2] {
+			case "us":
 				geographicAreas["North America"] = append(geographicAreas["North America"], region.RegionId)
-			case region.RegionId[:2] == "eu":
+			case "eu":
 				geographicAreas["Europe"] = append(geographicAreas["Europe"], region.RegionId)
-			case region.RegionId[:2] == "ap":
+			case "ap":
 				geographicAreas["Asia Pacific"] = append(geographicAreas["Asia Pacific"], region.RegionId)
-			case region.RegionId[:2] == "sa":
+			case "sa":
 				geographicAreas["South America"] = append(geographicAreas["South America"], region.RegionId)
-			case region.RegionId[:2] == "ca":
+			case "ca":
 				geographicAreas["Canada"] = append(geographicAreas["Canada"], region.RegionId)
-			case region.RegionId[:2] == "af":
+			case "af":
 				geographicAreas["Africa"] = append(geographicAreas["Africa"], region.RegionId)
-			case region.RegionId[:2] == "me":
+			case "me":
 				geographicAreas["Middle East"] = append(geographicAreas["Middle East"], region.RegionId)
-			case region.RegionId[:2] == "il":
+			case "il":
 				geographicAreas["Israel"] = append(geographicAreas["Israel"], region.RegionId)
-			case region.RegionId[:2] == "mx":
+			case "mx":
 				geographicAreas["Mexico"] = append(geographicAreas["Mexico"], region.RegionId)
 			default:
 				geographicAreas["Other"] = append(geographicAreas["Other"], region.RegionId)
