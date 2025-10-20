@@ -81,6 +81,12 @@ jobs:
           git tag ${{ steps.get-version.outputs.next_tag }}
           git push origin ${{ steps.get-version.outputs.next_tag }}
 
+      - name: Checkout the tagged commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get-version.outputs.next_tag }}
+          fetch-depth: 0
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
