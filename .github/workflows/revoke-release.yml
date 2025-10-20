@@ -1,0 +1,197 @@
+name: Revoke Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version tag to revoke (e.g., v1.2.3)'
+        required: true
+        type: string
+      confirm_revocation:
+        description: 'Type "CONFIRM" to proceed with revocation'
+        required: true
+        type: string
+      reason:
+        description: 'Reason for revocation (optional)'
+        required: false
+        type: string
+        default: 'Manual revocation'
+
+permissions:
+  contents: write
+
+jobs:
+  revoke-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_revocation }}" != "CONFIRM" ]; then
+            echo "❌ Revocation not confirmed. You must type 'CONFIRM' to proceed."
+            exit 1
+          fi
+          echo "✅ Revocation confirmed"
+
+      - name: Validate version tag format
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version tag format: $tag"
+            echo "Expected format: v1.2.3"
+            exit 1
+          fi
+          echo "✅ Version tag format is valid: $tag"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Verify tag exists
+        id: verify-tag
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          if git tag -l | grep -q "^$tag$"; then
+            echo "✅ Tag $tag exists"
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Tag $tag does not exist"
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Check if GitHub release exists
+        id: check-release
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          
+          # Use GitHub CLI to check if release exists
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "✅ GitHub release $tag exists"
+            echo "release_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️  GitHub release $tag does not exist"
+            echo "release_exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete GitHub release
+        if: steps.check-release.outputs.release_exists == 'true'
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          echo "🗑️  Deleting GitHub release: $tag"
+          
+          gh release delete "$tag" --yes
+          echo "✅ GitHub release $tag deleted successfully"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete Git tag locally and remotely
+        if: steps.verify-tag.outputs.tag_exists == 'true'
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          echo "🗑️  Deleting Git tag: $tag"
+          
+          # Delete local tag
+          git tag -d "$tag" || echo "Local tag already deleted"
+          
+          # Delete remote tag
+          git push origin --delete "$tag"
+          echo "✅ Git tag $tag deleted successfully"
+
+      - name: Request Go module proxy removal
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          module="github.com/myerscode/aws-meta"
+          
+          echo "📦 Requesting Go module proxy removal for: $module@$tag"
+          
+          # The Go module proxy doesn't have a direct API for removal
+          # But we can try to trigger a refresh and document the process
+          
+          echo "🔄 Attempting to refresh Go module proxy cache..."
+          
+          # Try to fetch the module info to see current status
+          proxy_url="https://proxy.golang.org/$module/@v/$tag.info"
+          echo "Checking proxy status: $proxy_url"
+          
+          if curl -f -s "$proxy_url" >/dev/null 2>&1; then
+            echo "⚠️  Module $module@$tag is still available in Go proxy"
+            echo ""
+            echo "📋 Manual steps required for complete Go module removal:"
+            echo "1. The Go module proxy caches modules permanently by design"
+            echo "2. Deleted tags may still be accessible via proxy for some time"
+            echo "3. Consider these options:"
+            echo "   - Wait for natural cache expiration (varies)"
+            echo "   - Contact Go team if urgent removal is needed"
+            echo "   - Use a new version number instead of reusing this one"
+            echo ""
+            echo "🔗 Go proxy URL: $proxy_url"
+            echo "🔗 pkg.go.dev URL: https://pkg.go.dev/$module@$tag"
+          else
+            echo "✅ Module $module@$tag is not accessible via Go proxy"
+          fi
+
+      - name: Verify Go module is not accessible
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          module="github.com/myerscode/aws-meta"
+          
+          echo "🔍 Verifying module removal..."
+          
+          # Try to fetch the module
+          if go list -m "$module@$tag" >/dev/null 2>&1; then
+            echo "⚠️  Module $module@$tag is still accessible via 'go get'"
+            echo "This is expected as Go proxy caches modules"
+          else
+            echo "✅ Module $module@$tag is not accessible via 'go get'"
+          fi
+
+      - name: Create revocation summary
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          reason="${{ github.event.inputs.reason }}"
+          
+          echo "## 🚫 Release Revocation Summary"
+          echo ""
+          echo "**Version:** $tag"
+          echo "**Reason:** $reason"
+          echo "**Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "**Initiated by:** ${{ github.actor }}"
+          echo ""
+          echo "### Actions Completed:"
+          echo "- ✅ Git tag deleted from repository"
+          echo "- ✅ GitHub release deleted"
+          echo "- ⚠️  Go module proxy: May still be cached (see notes above)"
+          echo ""
+          echo "### Important Notes:"
+          echo "- The Go module proxy caches modules permanently"
+          echo "- Existing projects using this version will continue to work"
+          echo "- New projects cannot fetch this version from the source repository"
+          echo "- Consider using a new version number instead of reusing $tag"
+          echo ""
+          echo "### Recommendations:"
+          echo "- If this was a broken release, create a new patch version"
+          echo "- Update documentation to reflect the revocation"
+          echo "- Notify users if this was a widely-used version"
+
+      - name: Log completion
+        run: |
+          tag="${{ github.event.inputs.version_tag }}"
+          echo "🎉 Release revocation completed for $tag"
+          echo ""
+          echo "Summary of actions:"
+          echo "✅ Git tag removed from repository"
+          echo "✅ GitHub release deleted"
+          echo "⚠️  Go proxy cache may persist (this is normal)"
+          echo ""
+          echo "The revocation is now complete. Users will no longer be able to"
+          echo "fetch $tag directly from the repository, though it may remain"
+          echo "cached in the Go module proxy for some time."
