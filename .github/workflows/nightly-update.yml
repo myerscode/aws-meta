@@ -1,0 +1,80 @@
+name: Nightly Data Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+      - name: Run generate command
+        run: go run . generate
+        env:
+          AWSMETA_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for changes and commit
+        id: git-diff
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Only add files that should be updated by the generate command
+          git add pkg/data/manifests/ go.mod go.sum
+          
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "📊 No changes detected in AWS data"
+          else
+            current_date=$(date +'%Y-%m-%d')
+            cat > commit_message.txt << EOF
+          chore(data): ⏳nightly AWS data update ($current_date)
+          
+          - Updated partition data
+          - Updated region data
+          - Updated service data
+          - Updated go.mod/go.sum if needed
+          
+          Generated on: $current_date
+          EOF
+            git commit -F commit_message.txt
+            rm commit_message.txt
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "📊 Changes detected in AWS data, committing updates"
+          fi
+
+      - name: Push changes if any
+        if: steps.git-diff.outputs.changed == 'true'
+        run: |
+          git push origin main
+          echo "✅ AWS data updates pushed to main branch"
+
+      - name: Log completion
+        run: |
+          if [ "${{ steps.git-diff.outputs.changed }}" == "true" ]; then
+            echo "🎉 Nightly data update completed successfully"
+            echo "📈 Latest AWS service, region, and partition data is now available"
+            echo "🔄 Weekly release workflow will create the next version tag"
+          else
+            echo "✨ No updates needed - AWS data is current"
+          fi

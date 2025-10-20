@@ -2,7 +2,8 @@
 > A Go package for exposing information about AWS Partitions, Regions and Services
 
 [![Go](https://github.com/myerscode/aws-meta/actions/workflows/go.yml/badge.svg)](https://github.com/myerscode/aws-meta/actions/workflows/go.yml)
-[![Nightly Release](https://github.com/myerscode/aws-meta/actions/workflows/release.yml/badge.svg)](https://github.com/myerscode/aws-meta/actions/workflows/release.yml)
+[![Nightly Update](https://github.com/myerscode/aws-meta/actions/workflows/nightly-update.yml/badge.svg)](https://github.com/myerscode/aws-meta/actions/workflows/nightly-update.yml)
+[![Weekly Release](https://github.com/myerscode/aws-meta/actions/workflows/weekly-release.yml/badge.svg)](https://github.com/myerscode/aws-meta/actions/workflows/weekly-release.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/myerscode/aws-meta.svg)](https://pkg.go.dev/github.com/myerscode/aws-meta)
 [![Go Report Card](https://goreportcard.com/badge/github.com/myerscode/aws-meta)](https://goreportcard.com/report/github.com/myerscode/aws-meta)
 

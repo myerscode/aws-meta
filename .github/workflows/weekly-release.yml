@@ -1,0 +1,238 @@
+name: Weekly Release
+
+on:
+  schedule:
+    # Run every Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force release even if no changes since last release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  weekly-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          install-only: true
+
+      - name: Check for changes since last release
+        id: check-changes
+        run: |
+          # Get the latest release tag
+          latest_tag=$(git tag --sort=-version:refname | head -n 1)
+          
+          if [[ -z "$latest_tag" ]]; then
+            echo "No previous releases found, proceeding with initial release"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "latest_tag=" >> $GITHUB_OUTPUT
+          else
+            echo "Latest release tag: $latest_tag"
+            echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+            
+            # Check if there are commits since the last tag
+            commits_since_tag=$(git rev-list --count $latest_tag..HEAD)
+            
+            if [ "$commits_since_tag" -gt 0 ]; then
+              echo "Found $commits_since_tag commits since last release"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+              
+              # Show what changed
+              echo "Changes since $latest_tag:"
+              git log --oneline $latest_tag..HEAD
+            else
+              echo "No commits since last release"
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Check force release flag
+        id: should-release
+        run: |
+          has_changes="${{ steps.check-changes.outputs.has_changes }}"
+          force_release="${{ github.event.inputs.force_release }}"
+          
+          if [ "$has_changes" == "true" ] || [ "$force_release" == "true" ]; then
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            if [ "$force_release" == "true" ]; then
+              echo "🚀 Force release requested"
+            else
+              echo "📦 Changes detected, proceeding with release"
+            fi
+          else
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "⏭️  No changes since last release, skipping"
+          fi
+
+      - name: Calculate next version
+        if: steps.should-release.outputs.should_release == 'true'
+        id: get-version
+        run: |
+          latest_tag="${{ steps.check-changes.outputs.latest_tag }}"
+          
+          if [[ -z "$latest_tag" ]]; then
+            next="v0.1.0"
+            echo "🎉 Initial release version: $next"
+          else
+            # Extract version numbers
+            version=${latest_tag#v}
+            IFS='.' read -r major minor patch <<< "$version"
+            
+            # Increment minor version for weekly releases
+            next="v$major.$((minor+1)).0"
+            echo "📈 Version bump: $latest_tag → $next"
+          fi
+          
+          echo "next_tag=$next" >> $GITHUB_OUTPUT
+          echo "Previous tag: $latest_tag"
+          echo "Next tag: $next"
+
+      - name: Generate changelog
+        if: steps.should-release.outputs.should_release == 'true'
+        id: changelog
+        run: |
+          latest_tag="${{ steps.check-changes.outputs.latest_tag }}"
+          next_tag="${{ steps.get-version.outputs.next_tag }}"
+          
+          echo "📝 Generating changelog for $next_tag"
+          
+          if [[ -z "$latest_tag" ]]; then
+            # Initial release
+            cat > CHANGELOG.md << 'EOF'
+          ## Initial Release
+          
+          This is the first release of the AWS Metadata Go package.
+          
+          ### Features
+          - Complete AWS partition, region, and service metadata
+          - Go package with comprehensive API
+          - Automated nightly data updates
+          - Multiple package support (partitions, services)
+          
+          ### Packages
+          - `pkg/partitions`: AWS partition information and categorization
+          - `pkg/services`: AWS service and region metadata
+          
+          ### Installation
+          ```bash
+          go get github.com/myerscode/aws-meta@$next_tag
+          ```
+          EOF
+          else
+            # Generate changelog from commits
+            echo "## Changes since $latest_tag" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            
+            # Get commits since last tag and categorize them
+            git log --pretty=format:"- %s (%h)" $latest_tag..HEAD >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+          
+          # Add standard footer
+          cat >> CHANGELOG.md << EOF
+          ### Go Package Usage
+          
+          \`\`\`bash
+          go get github.com/myerscode/aws-meta@$next_tag
+          \`\`\`
+          
+          ### Quick Start
+          
+          \`\`\`go
+          import (
+              "github.com/myerscode/aws-meta/pkg/partitions"
+              "github.com/myerscode/aws-meta/pkg/services"
+          )
+          
+          // Get all partitions
+          partitions := partitions.AllPartitionNames()
+          
+          // Get services in a region
+          services, err := services.ServiceMetaForRegion("us-east-1")
+          \`\`\`
+          
+          ### Documentation
+          
+          - [API Reference](https://github.com/myerscode/aws-meta/blob/main/docs/methods.md)
+          - [Partitions Package](https://github.com/myerscode/aws-meta/blob/main/docs/partitions.md)
+          - [Services Package](https://github.com/myerscode/aws-meta/blob/main/docs/services.md)
+          - [pkg.go.dev](https://pkg.go.dev/github.com/myerscode/aws-meta@$next_tag)
+          EOF
+
+      - name: Create and push tag
+        if: steps.should-release.outputs.should_release == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          next_tag="${{ steps.get-version.outputs.next_tag }}"
+          
+          echo "🏷️  Creating tag: $next_tag"
+          git tag "$next_tag"
+          git push origin "$next_tag"
+          echo "✅ Tag created and pushed: $next_tag"
+
+      - name: Checkout the tagged commit
+        if: steps.should-release.outputs.should_release == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.get-version.outputs.next_tag }}
+          fetch-depth: 0
+
+      - name: Run GoReleaser
+        if: steps.should-release.outputs.should_release == 'true'
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log release completion
+        if: steps.should-release.outputs.should_release == 'true'
+        run: |
+          next_tag="${{ steps.get-version.outputs.next_tag }}"
+          
+          echo "🎉 Weekly release completed successfully!"
+          echo ""
+          echo "📦 Version: $next_tag"
+          echo "🔗 Release: https://github.com/myerscode/aws-meta/releases/tag/$next_tag"
+          echo "📚 Documentation: https://pkg.go.dev/github.com/myerscode/aws-meta@$next_tag"
+          echo ""
+          echo "🚀 Go package is now available:"
+          echo "   go get github.com/myerscode/aws-meta@$next_tag"
+
+      - name: Log no release
+        if: steps.should-release.outputs.should_release == 'false'
+        run: |
+          echo "⏭️  No weekly release created"
+          echo "📊 No changes detected since last release"
+          echo "🔄 Next check will be in one week"
+          echo ""
+          echo "💡 To force a release, run this workflow manually with force_release=true"
