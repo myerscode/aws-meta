@@ -1,0 +1,56 @@
+package cmd
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/myerscode/aws-meta/pkg/regions"
+	"github.com/spf13/cobra"
+)
+
+// listRegionsCmd represents the list regions command
+var listRegionsCmd = &cobra.Command{
+	Use:   "regions",
+	Short: "List AWS Region information",
+	Long: `List AWS Region metadata including Region IDs, names, partition information,
+and the list of services available in each regRegionion.
+
+Use the --json flag to output the data in JSON format for programmatic use.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		jsonOutput, _ := cmd.Flags().GetBool("json")
+
+		if jsonOutput {
+			// Get Region data using existing pkg function
+			regionData, err := regions.ListAllRegions()
+			if err != nil {
+				return fmt.Errorf("failed to retrieve Region data: %w", err)
+			}
+
+			// Handle empty data case - return empty array if no data available
+			if regionData == nil {
+				regionData = make([]regions.RegionInfo, 0)
+			}
+
+			// Marshal to JSON with proper indentation
+			jsonBytes, err := json.MarshalIndent(regionData, "", "  ")
+			if err != nil {
+				return fmt.Errorf("failed to marshal Region data to JSON: %w", err)
+			}
+
+			fmt.Println(string(jsonBytes))
+		} else {
+			// Todo placeholder for non-JSON mode
+			fmt.Println("TODO: Human-readable Region listing not yet implemented. Use --json flag for JSON output.")
+		}
+
+		return nil
+	},
+}
+
+func init() {
+	// Add regions subcommand to list command
+	listCmd.AddCommand(listRegionsCmd)
+
+	// Add --json flag with help text
+	listRegionsCmd.Flags().BoolP("json", "j", false, "Output Region data in JSON format")
+}

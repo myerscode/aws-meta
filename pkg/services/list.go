@@ -43,6 +43,29 @@ func AllRegionNames() []string {
 	return regionNames
 }
 
+// List returns detailed information about all AWS services.
+// This includes service metadata such as service IDs, full names, operations,
+// and regional availability information.
+//
+// Returns:
+//   - aws.ServiceSchemas: A map of service schemas containing detailed service information
+//   - error: An error if there's an issue reading the manifest
+//
+// Example:
+//
+//	services, err := services.List()
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//	for serviceId, service := range services {
+//	    fmt.Printf("Service: %s\n", service.ServiceFullName)
+//	    fmt.Printf("  ID: %s\n", service.ServiceId)
+//	    fmt.Printf("  Operations: %d\n", len(service.Operations))
+//	}
+func List() (aws.ServiceSchemas, error) {
+	return serviceManifest()
+}
+
 func AllServiceNames() []string {
 
 	manifest, err := serviceManifest()
