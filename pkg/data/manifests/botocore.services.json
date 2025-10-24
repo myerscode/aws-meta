@@ -2044,7 +2044,7 @@
  "Bedrock AgentCore": {
   "APIVersion": "2024-02-28",
   "ServiceId": "Bedrock AgentCore",
-  "ServiceFullName": "Amazon Bedrock AgentCore Data Plane Fronting Layer",
+  "ServiceFullName": "Amazon Bedrock AgentCore",
   "EndpointPrefix": "bedrock-agentcore",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
@@ -2086,7 +2086,7 @@
  "Bedrock AgentCore Control": {
   "APIVersion": "2023-06-05",
   "ServiceId": "Bedrock AgentCore Control",
-  "ServiceFullName": "Amazon Bedrock Agent Core Control Plane Fronting Layer",
+  "ServiceFullName": "Amazon Bedrock AgentCore Control",
   "EndpointPrefix": "bedrock-agentcore-control",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
@@ -5281,10 +5281,13 @@
   "Operations": [
    "CreateCluster",
    "DeleteCluster",
+   "DeleteClusterPolicy",
    "GetCluster",
+   "GetClusterPolicy",
    "GetVpcEndpointServiceName",
    "ListClusters",
    "ListTagsForResource",
+   "PutClusterPolicy",
    "TagResource",
    "UntagResource",
    "UpdateCluster"

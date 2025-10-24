@@ -217,6 +217,10 @@
    {
     "RegionId": "us-isob-east-1",
     "RegionName": "US ISOB East (Ohio)"
+   },
+   {
+    "RegionId": "us-isob-west-1",
+    "RegionName": "US ISOB West"
    }
   ]
  },

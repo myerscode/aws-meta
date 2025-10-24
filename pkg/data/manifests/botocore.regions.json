@@ -2443,6 +2443,7 @@
      "logs",
      "metrics.sagemaker",
      "monitoring",
+     "mq",
      "notifications",
      "oam",
      "pi",
