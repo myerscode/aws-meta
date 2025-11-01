@@ -6607,6 +6607,7 @@
    {
     "region": "us-iso-east-1",
     "services": [
+     "acm",
      "agreement-marketplace",
      "api.ecr",
      "api.pricing",
@@ -6706,6 +6707,7 @@
    {
     "region": "us-iso-west-1",
     "services": [
+     "acm",
      "api.ecr",
      "apigateway",
      "appconfig",
