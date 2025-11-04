@@ -10779,6 +10779,7 @@
    "DeleteResourcePolicy",
    "DeleteStream",
    "DeregisterStreamConsumer",
+   "DescribeAccountSettings",
    "DescribeLimits",
    "DescribeStream",
    "DescribeStreamConsumer",
@@ -10806,9 +10807,11 @@
    "SubscribeToShard",
    "TagResource",
    "UntagResource",
+   "UpdateAccountSettings",
    "UpdateMaxRecordSize",
    "UpdateShardCount",
-   "UpdateStreamMode"
+   "UpdateStreamMode",
+   "UpdateStreamWarmThroughput"
   ]
  },
  "Kinesis Analytics": {
