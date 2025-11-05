@@ -14403,6 +14403,7 @@
   "Operations": [
    "AssociateOriginationIdentity",
    "AssociateProtectConfiguration",
+   "CarrierLookup",
    "CreateConfigurationSet",
    "CreateEventDestination",
    "CreateOptOutList",
