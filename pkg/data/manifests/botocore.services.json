@@ -9172,6 +9172,7 @@
    "ChangePassword",
    "CreateAccessKey",
    "CreateAccountAlias",
+   "CreateDelegationRequest",
    "CreateGroup",
    "CreateInstanceProfile",
    "CreateLoginProfile",
@@ -9580,6 +9581,7 @@
    "BatchGetInvoiceProfile",
    "CreateInvoiceUnit",
    "DeleteInvoiceUnit",
+   "GetInvoicePDF",
    "GetInvoiceUnit",
    "ListInvoiceSummaries",
    "ListInvoiceUnits",
@@ -10670,6 +10672,7 @@
    "UpdateConfiguration",
    "UpdateConnectivity",
    "UpdateMonitoring",
+   "UpdateRebalancing",
    "UpdateReplicationInfo",
    "UpdateSecurity",
    "UpdateStorage"
@@ -17307,6 +17310,7 @@
    "DecodeAuthorizationMessage",
    "GetAccessKeyInfo",
    "GetCallerIdentity",
+   "GetDelegatedAccessToken",
    "GetFederationToken",
    "GetSessionToken"
   ]
