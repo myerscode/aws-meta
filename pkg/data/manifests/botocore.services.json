@@ -2946,6 +2946,7 @@
    "ExecuteChangeSet",
    "ExecuteStackRefactor",
    "GetGeneratedTemplate",
+   "GetHookResult",
    "GetStackPolicy",
    "GetTemplate",
    "GetTemplateSummary",
