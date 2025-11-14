@@ -3,11 +3,20 @@ name: Post Release Actions
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g., v1.2.3)'
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 jobs:
+  changelog:
+    uses: myerscode/.github/.github/workflows/update-changelog.yml@main
+
   update-documentation:
     runs-on: ubuntu-latest
     steps:
@@ -17,27 +26,36 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Set release variables
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag_name }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          echo "release_url=https://github.com/${{ github.repository }}/releases/tag/$TAG" >> $GITHUB_OUTPUT
+
       - name: Update README with latest version
         run: |
-          # Get the release tag from the event
-          latest_tag="${{ github.event.release.tag_name }}"
+          latest_tag="${{ steps.release.outputs.tag_name }}"
           
-          # Update README.md with the latest version in installation instructions
           if [ -f README.md ]; then
-            # Update go get command with latest version
             sed -i "s|go get github.com/myerscode/aws-meta@v[0-9]*\.[0-9]*\.[0-9]*|go get github.com/myerscode/aws-meta@$latest_tag|g" README.md
             sed -i "s|go get github.com/myerscode/aws-meta$|go get github.com/myerscode/aws-meta@$latest_tag|g" README.md
           fi
 
-      - name: Update documentation with latest examples
+      - name: Update documentation
         run: |
-          latest_tag="${{ github.event.release.tag_name }}"
+          latest_tag="${{ steps.release.outputs.tag_name }}"
           
-          # Update all documentation files with the latest version
-          find docs/ -name "*.md" -type f -exec sed -i "s|go get github.com/myerscode/aws-meta@v[0-9]*\.[0-9]*\.[0-9]*|go get github.com/myerscode/aws-meta@$latest_tag|g" {} \;
-          find docs/ -name "*.md" -type f -exec sed -i "s|go get github.com/myerscode/aws-meta$|go get github.com/myerscode/aws-meta@$latest_tag|g" {} \;
+          if [ -d docs/ ]; then
+            find docs/ -name "*.md" -type f -exec sed -i "s|go get github.com/myerscode/aws-meta@v[0-9]*\.[0-9]*\.[0-9]*|go get github.com/myerscode/aws-meta@$latest_tag|g" {} \;
+            find docs/ -name "*.md" -type f -exec sed -i "s|go get github.com/myerscode/aws-meta$|go get github.com/myerscode/aws-meta@$latest_tag|g" {} \;
+          fi
 
-      - name: Commit documentation updates
+      - name: Commit updates
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -45,20 +63,31 @@ jobs:
           if git diff --quiet; then
             echo "No documentation updates needed"
           else
-            git add README.md docs/
-            git commit -m "docs: update installation instructions with latest version ${{ github.event.release.tag_name }}"
+            git add README.md docs/ 2>/dev/null || true
+            git commit -m "docs: update documentation for ${{ steps.release.outputs.tag_name }}"
             git push origin main
           fi
 
   verify-go-package:
     runs-on: ubuntu-latest
     steps:
+      - name: Set release variables
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag_name }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          echo "release_url=https://github.com/${{ github.repository }}/releases/tag/$TAG" >> $GITHUB_OUTPUT
+
       - name: Wait for Go proxy indexing
-        run: sleep 60  # Wait 1 minute for Go proxy to index
+        run: sleep 60
 
       - name: Verify Go package availability
         run: |
-          tag_name="${{ github.event.release.tag_name }}"
+          tag_name="${{ steps.release.outputs.tag_name }}"
           module="github.com/myerscode/aws-meta"
           
           echo "🎉 New Go package release: $module@$tag_name"
@@ -67,7 +96,7 @@ jobs:
           echo "go get $module@$tag_name"
           echo ""
           echo "🔗 Links:"
-          echo "- Release: ${{ github.event.release.html_url }}"
+          echo "- Release: ${{ steps.release.outputs.release_url }}"
           echo "- Go Proxy: https://proxy.golang.org/$module/@v/$tag_name.info"
           echo "- pkg.go.dev: https://pkg.go.dev/$module@$tag_name"
           echo ""
