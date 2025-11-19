@@ -23,11 +23,6 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
-      - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
-
       - name: Run generate command
         run: go run . generate
         env:
