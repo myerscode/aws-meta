@@ -4,7 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"path/filepath"
+	"path"
 	"regexp"
 
 	"github.com/myerscode/aws-meta/internal/aws"
@@ -53,7 +53,8 @@ func getArchiveFile(pattern string) ([]byte, error) {
 		return nil, fmt.Errorf("no valid JSON files found")
 	}
 
-	content, err := manifestsFS.ReadFile(filepath.Join(manifestDirectoryName, latestFile))
+	filePath := path.Join(manifestDirectoryName, latestFile)
+	content, err := manifestsFS.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file %s: %w", latestFile, err)
 	}
@@ -62,8 +63,7 @@ func getArchiveFile(pattern string) ([]byte, error) {
 }
 
 func getManifestFile(file string) ([]byte, error) {
-	// Read the file directly from the manifestDirectoryName location
-	filePath := filepath.Join(manifestDirectoryName, file)
+	filePath := path.Join(manifestDirectoryName, file)
 	content, err := manifestsFS.ReadFile(filePath)
 
 	if err != nil {
