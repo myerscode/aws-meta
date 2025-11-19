@@ -39,6 +39,7 @@ jobs:
           go-version-file: 'go.mod'
         
       - name: Run tests with coverage
+        shell: bash
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
         
       - name: Upload coverage report
