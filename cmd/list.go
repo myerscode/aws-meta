@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/myerscode/aws-meta/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +18,9 @@ Use the available subcommands to list specific types of metadata:
 Each subcommand supports optional flags for different output formats.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Show help when list command is run without subcommands
-		cmd.Help()
+		if err := cmd.Help(); err != nil {
+			util.LogError("Error displaying help: " + err.Error())
+		}
 	},
 }
 
