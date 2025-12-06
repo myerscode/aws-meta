@@ -14410,6 +14410,7 @@
    "GetPartner",
    "GetProfileUpdateTask",
    "GetProfileVisibility",
+   "GetVerification",
    "ListConnectionInvitations",
    "ListConnections",
    "ListPartners",
@@ -14419,6 +14420,7 @@
    "RejectConnectionInvitation",
    "SendEmailVerificationCode",
    "StartProfileUpdateTask",
+   "StartVerification",
    "TagResource",
    "UntagResource",
    "UpdateConnectionPreferences"
