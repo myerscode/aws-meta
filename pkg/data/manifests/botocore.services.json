@@ -5245,6 +5245,7 @@
    "ListCostAllocationTagBackfillHistory",
    "ListCostAllocationTags",
    "ListCostCategoryDefinitions",
+   "ListCostCategoryResourceAssociations",
    "ListSavingsPlansPurchaseRecommendationGeneration",
    "ListTagsForResource",
    "ProvideAnomalyFeedback",
@@ -16218,6 +16219,7 @@
    "GetCredentials",
    "GetCustomDomainAssociation",
    "GetEndpointAccess",
+   "GetIdentityCenterAuthToken",
    "GetNamespace",
    "GetRecoveryPoint",
    "GetReservation",
@@ -16452,7 +16454,6 @@
   "EndpointPrefix": "rolesanywhere",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
-  "JSONVersion": "1.1",
   "Operations": [
    "CreateProfile",
    "CreateTrustAnchor",
