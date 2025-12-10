@@ -337,6 +337,7 @@
    "GetAccountInformation",
    "GetAlternateContact",
    "GetContactInformation",
+   "GetGovCloudAccountInformation",
    "GetPrimaryEmail",
    "GetRegionOptStatus",
    "ListRegions",
@@ -21854,7 +21855,6 @@
   "EndpointPrefix": "mgn",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
-  "JSONVersion": "1.1",
   "Operations": [
    "ArchiveApplication",
    "ArchiveWave",
