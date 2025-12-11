@@ -3474,7 +3474,9 @@
   "ServiceFullName": "Amazon CloudWatch",
   "EndpointPrefix": "monitoring",
   "SignatureVersion": "v4",
-  "Protocol": "query",
+  "Protocol": "smithy-rpc-v2-cbor",
+  "JSONVersion": "1.0",
+  "TargetPrefix": "GraniteServiceVersion20100801",
   "Operations": [
    "DeleteAlarms",
    "DeleteAnomalyDetector",
