@@ -15608,6 +15608,7 @@
    "GetDashboardEmbedUrl",
    "GetFlowMetadata",
    "GetFlowPermissions",
+   "GetIdentityContext",
    "GetSessionEmbedUrl",
    "ListActionConnectors",
    "ListAnalyses",
