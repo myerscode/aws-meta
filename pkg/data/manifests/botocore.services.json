@@ -19537,6 +19537,8 @@
    "ListDbInstancesForCluster",
    "ListDbParameterGroups",
    "ListTagsForResource",
+   "RebootDbCluster",
+   "RebootDbInstance",
    "TagResource",
    "UntagResource",
    "UpdateDbCluster",

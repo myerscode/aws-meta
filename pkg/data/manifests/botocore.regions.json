@@ -408,6 +408,7 @@
      "oam",
      "oidc",
      "pi",
+     "portal.sso",
      "qbusiness",
      "ram",
      "rbin",
@@ -6715,6 +6716,7 @@
      "tagging",
      "transfer",
      "trustedadvisor",
+     "wafv2",
      "xray"
     ]
    }
