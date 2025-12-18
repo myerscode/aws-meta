@@ -9755,7 +9755,6 @@
   "EndpointPrefix": "inspector-scan",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
-  "JSONVersion": "1.1",
   "Operations": [
    "ScanSbom"
   ]
@@ -14594,6 +14593,7 @@
   "Operations": [
    "DecryptData",
    "EncryptData",
+   "GenerateAs2805KekValidation",
    "GenerateCardValidationData",
    "GenerateMac",
    "GenerateMacEmvPinChange",
