@@ -31,6 +31,7 @@
      "backup-gateway",
      "batch",
      "bedrock",
+     "cases",
      "cassandra",
      "cloud9",
      "cloudcontrolapi",
@@ -6912,6 +6913,7 @@
    {
     "region": "us-isob-east-1",
     "services": [
+     "agreement-marketplace",
      "api.ecr",
      "api.pricing",
      "api.sagemaker",
@@ -7194,6 +7196,7 @@
      "fsx",
      "glue",
      "guardduty",
+     "identitystore",
      "kinesis",
      "kms",
      "lakeformation",
