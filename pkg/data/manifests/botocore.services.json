@@ -8028,33 +8028,6 @@
    "SetSubnets"
   ]
  },
- "Elastic Transcoder": {
-  "APIVersion": "2012-09-25",
-  "ServiceId": "Elastic Transcoder",
-  "ServiceFullName": "Amazon Elastic Transcoder",
-  "EndpointPrefix": "elastictranscoder",
-  "SignatureVersion": "v4",
-  "Protocol": "rest-json",
-  "Operations": [
-   "CancelJob",
-   "CreateJob",
-   "CreatePipeline",
-   "CreatePreset",
-   "DeletePipeline",
-   "DeletePreset",
-   "ListJobsByPipeline",
-   "ListJobsByStatus",
-   "ListPipelines",
-   "ListPresets",
-   "ReadJob",
-   "ReadPipeline",
-   "ReadPreset",
-   "TestRole",
-   "UpdatePipeline",
-   "UpdatePipelineNotifications",
-   "UpdatePipelineStatus"
-  ]
- },
  "Elasticsearch Service": {
   "APIVersion": "2015-01-01",
   "ServiceId": "Elasticsearch Service",
@@ -15599,6 +15572,7 @@
    "DescribeQuickSightQSearchConfiguration",
    "DescribeRefreshSchedule",
    "DescribeRoleCustomPermission",
+   "DescribeSelfUpgradeConfiguration",
    "DescribeTemplate",
    "DescribeTemplateAlias",
    "DescribeTemplateDefinition",
@@ -15643,6 +15617,7 @@
    "ListNamespaces",
    "ListRefreshSchedules",
    "ListRoleMemberships",
+   "ListSelfUpgrades",
    "ListTagsForResource",
    "ListTemplateAliases",
    "ListTemplateVersions",
@@ -15711,6 +15686,8 @@
    "UpdateRefreshSchedule",
    "UpdateRoleCustomPermission",
    "UpdateSPICECapacityConfiguration",
+   "UpdateSelfUpgrade",
+   "UpdateSelfUpgradeConfiguration",
    "UpdateTemplate",
    "UpdateTemplateAlias",
    "UpdateTemplatePermissions",
