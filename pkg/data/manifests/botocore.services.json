@@ -5700,7 +5700,6 @@
   "EndpointPrefix": "datazone",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
-  "JSONVersion": "1.1",
   "Operations": [
    "AcceptPredictions",
    "AcceptSubscriptionRequest",
