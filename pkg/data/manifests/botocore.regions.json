@@ -2481,6 +2481,7 @@
      "access-analyzer",
      "acm",
      "acm-pca",
+     "airflow",
      "api.ecr",
      "api.sagemaker",
      "apigateway",
