@@ -178,7 +178,7 @@
   "Regions": [
    {
     "RegionId": "eusc-de-east-1",
-    "RegionName": "EU (Germany)"
+    "RegionName": "AWS European Sovereign Cloud (Germany)"
    }
   ]
  },
