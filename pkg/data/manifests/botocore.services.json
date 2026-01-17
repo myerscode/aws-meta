@@ -11466,20 +11466,22 @@
   "EndpointPrefix": "launchwizard",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
-  "JSONVersion": "1.1",
   "Operations": [
    "CreateDeployment",
    "DeleteDeployment",
    "GetDeployment",
+   "GetDeploymentPatternVersion",
    "GetWorkload",
    "GetWorkloadDeploymentPattern",
    "ListDeploymentEvents",
+   "ListDeploymentPatternVersions",
    "ListDeployments",
    "ListTagsForResource",
    "ListWorkloadDeploymentPatterns",
    "ListWorkloads",
    "TagResource",
-   "UntagResource"
+   "UntagResource",
+   "UpdateDeployment"
   ]
  },
  "Lex Model Building Service": {
