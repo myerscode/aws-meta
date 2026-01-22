@@ -2426,6 +2426,7 @@
      "firehose",
      "gameliftstreams",
      "glue",
+     "guardduty",
      "identitystore",
      "internetmonitor",
      "kafka",
