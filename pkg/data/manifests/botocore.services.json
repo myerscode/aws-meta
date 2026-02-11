@@ -4998,6 +4998,7 @@
    "UpdateTaskTemplate",
    "UpdateTestCase",
    "UpdateTrafficDistribution",
+   "UpdateUserConfig",
    "UpdateUserHierarchy",
    "UpdateUserHierarchyGroupName",
    "UpdateUserHierarchyStructure",
@@ -10948,11 +10949,13 @@
    "CreateClusterV2",
    "CreateConfiguration",
    "CreateReplicator",
+   "CreateTopic",
    "CreateVpcConnection",
    "DeleteCluster",
    "DeleteClusterPolicy",
    "DeleteConfiguration",
    "DeleteReplicator",
+   "DeleteTopic",
    "DeleteVpcConnection",
    "DescribeCluster",
    "DescribeClusterOperation",
@@ -10997,7 +11000,8 @@
    "UpdateRebalancing",
    "UpdateReplicationInfo",
    "UpdateSecurity",
-   "UpdateStorage"
+   "UpdateStorage",
+   "UpdateTopic"
   ]
  },
  "KafkaConnect": {
