@@ -19013,6 +19013,17 @@
    "UpdateSubscription"
   ]
  },
+ "Signer Data": {
+  "APIVersion": "2017-08-25",
+  "ServiceId": "Signer Data",
+  "ServiceFullName": "AWS Signer Data Plane",
+  "EndpointPrefix": "data-signer",
+  "SignatureVersion": "v4",
+  "Protocol": "rest-json",
+  "Operations": [
+   "GetRevocationStatus"
+  ]
+ },
  "Signin": {
   "APIVersion": "2023-01-01",
   "ServiceId": "Signin",
@@ -19728,7 +19739,6 @@
   "EndpointPrefix": "trustedadvisor",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
-  "JSONVersion": "1.1",
   "Operations": [
    "BatchUpdateRecommendationResourceExclusion",
    "GetOrganizationRecommendation",
