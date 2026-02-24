@@ -2346,6 +2346,7 @@
      "license-manager-linux-subscriptions",
      "license-manager-user-subscriptions",
      "logs",
+     "medialive",
      "mediapackagev2",
      "metrics.sagemaker",
      "mgn",
