@@ -3489,6 +3489,7 @@
   "JSONVersion": "1.0",
   "TargetPrefix": "GraniteServiceVersion20100801",
   "Operations": [
+   "DeleteAlarmMuteRule",
    "DeleteAlarms",
    "DeleteAnomalyDetector",
    "DeleteDashboards",
@@ -3504,17 +3505,20 @@
    "DisableInsightRules",
    "EnableAlarmActions",
    "EnableInsightRules",
+   "GetAlarmMuteRule",
    "GetDashboard",
    "GetInsightRuleReport",
    "GetMetricData",
    "GetMetricStatistics",
    "GetMetricStream",
    "GetMetricWidgetImage",
+   "ListAlarmMuteRules",
    "ListDashboards",
    "ListManagedInsightRules",
    "ListMetricStreams",
    "ListMetrics",
    "ListTagsForResource",
+   "PutAlarmMuteRule",
    "PutAnomalyDetector",
    "PutCompositeAlarm",
    "PutDashboard",
@@ -8122,6 +8126,26 @@
    "UpdatePackage",
    "UpdateVpcEndpoint",
    "UpgradeElasticsearchDomain"
+  ]
+ },
+ "ElementalInference": {
+  "APIVersion": "2018-11-14",
+  "ServiceId": "ElementalInference",
+  "ServiceFullName": "AWS Elemental Inference",
+  "EndpointPrefix": "elemental-inference",
+  "SignatureVersion": "v4",
+  "Protocol": "rest-json",
+  "Operations": [
+   "AssociateFeed",
+   "CreateFeed",
+   "DeleteFeed",
+   "DisassociateFeed",
+   "GetFeed",
+   "ListFeeds",
+   "ListTagsForResource",
+   "TagResource",
+   "UntagResource",
+   "UpdateFeed"
   ]
  },
  "EntityResolution": {
