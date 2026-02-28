@@ -4185,6 +4185,7 @@
   "TargetPrefix": "AWSCognitoIdentityProviderService",
   "Operations": [
    "AddCustomAttributes",
+   "AddUserPoolClientSecret",
    "AdminAddUserToGroup",
    "AdminConfirmSignUp",
    "AdminCreateUser",
@@ -4235,6 +4236,7 @@
    "DeleteUserAttributes",
    "DeleteUserPool",
    "DeleteUserPoolClient",
+   "DeleteUserPoolClientSecret",
    "DeleteUserPoolDomain",
    "DeleteWebAuthnCredential",
    "DescribeIdentityProvider",
@@ -4270,6 +4272,7 @@
    "ListTagsForResource",
    "ListTerms",
    "ListUserImportJobs",
+   "ListUserPoolClientSecrets",
    "ListUserPoolClients",
    "ListUserPools",
    "ListUsers",
