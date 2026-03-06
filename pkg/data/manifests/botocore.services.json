@@ -5177,6 +5177,32 @@
    "UpdateTemplate"
   ]
  },
+ "ConnectHealth": {
+  "APIVersion": "2025-01-29",
+  "ServiceId": "ConnectHealth",
+  "ServiceFullName": "Connect Health",
+  "EndpointPrefix": "health-agent",
+  "SignatureVersion": "v4",
+  "Protocol": "rest-json",
+  "Operations": [
+   "ActivateSubscription",
+   "CreateDomain",
+   "CreateSubscription",
+   "DeactivateSubscription",
+   "DeleteDomain",
+   "GetDomain",
+   "GetMedicalScribeListeningSession",
+   "GetPatientInsightsJob",
+   "GetSubscription",
+   "ListDomains",
+   "ListSubscriptions",
+   "ListTagsForResource",
+   "StartMedicalScribeListeningSession",
+   "StartPatientInsightsJob",
+   "TagResource",
+   "UntagResource"
+  ]
+ },
  "ConnectParticipant": {
   "APIVersion": "2018-09-07",
   "ServiceId": "ConnectParticipant",
@@ -12114,6 +12140,7 @@
    "ListSessions",
    "ListTagsForResource",
    "StartActiveApprovalTeamDeletion",
+   "StartApprovalTeamBaseline",
    "TagResource",
    "UntagResource",
    "UpdateApprovalTeam"
