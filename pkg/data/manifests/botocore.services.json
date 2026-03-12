@@ -5397,6 +5397,7 @@
    "CreateIntegrationWorkflow",
    "CreateProfile",
    "CreateRecommender",
+   "CreateRecommenderFilter",
    "CreateSegmentDefinition",
    "CreateSegmentEstimate",
    "CreateSegmentSnapshot",
@@ -5413,6 +5414,7 @@
    "DeleteProfileObject",
    "DeleteProfileObjectType",
    "DeleteRecommender",
+   "DeleteRecommenderFilter",
    "DeleteSegmentDefinition",
    "DeleteWorkflow",
    "DetectProfileObjectType",
@@ -5433,6 +5435,7 @@
    "GetProfileObjectTypeTemplate",
    "GetProfileRecommendations",
    "GetRecommender",
+   "GetRecommenderFilter",
    "GetSegmentDefinition",
    "GetSegmentEstimate",
    "GetSegmentMembership",
@@ -5459,6 +5462,7 @@
    "ListProfileObjectTypeTemplates",
    "ListProfileObjectTypes",
    "ListProfileObjects",
+   "ListRecommenderFilters",
    "ListRecommenderRecipes",
    "ListRecommenders",
    "ListRuleBasedMatches",
@@ -18255,6 +18259,7 @@
    "DescribeSubscribedWorkteam",
    "DescribeTrainingJob",
    "DescribeTrainingPlan",
+   "DescribeTrainingPlanExtensionHistory",
    "DescribeTransformJob",
    "DescribeTrial",
    "DescribeTrialComponent",
@@ -18265,6 +18270,7 @@
    "DisableSagemakerServicecatalogPortfolio",
    "DisassociateTrialComponent",
    "EnableSagemakerServicecatalogPortfolio",
+   "ExtendTrainingPlan",
    "GetDeviceFleetReport",
    "GetLineageGroupPolicy",
    "GetModelPackageGroupPolicy",
@@ -19145,6 +19151,19 @@
    "ListDomains",
    "PutAttributes",
    "Select"
+  ]
+ },
+ "SimpleDBv2": {
+  "APIVersion": "2025-09-26",
+  "ServiceId": "SimpleDBv2",
+  "ServiceFullName": "Amazon SimpleDB v2",
+  "EndpointPrefix": "sdb",
+  "SignatureVersion": "v4",
+  "Protocol": "rest-json",
+  "Operations": [
+   "GetExport",
+   "ListExports",
+   "StartDomainExport"
   ]
  },
  "Snow Device Management": {
