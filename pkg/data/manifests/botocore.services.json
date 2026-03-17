@@ -2085,6 +2085,7 @@
    "GetWorkloadAccessTokenForJWT",
    "GetWorkloadAccessTokenForUserId",
    "InvokeAgentRuntime",
+   "InvokeAgentRuntimeCommand",
    "InvokeCodeInterpreter",
    "ListActors",
    "ListBrowserSessions",

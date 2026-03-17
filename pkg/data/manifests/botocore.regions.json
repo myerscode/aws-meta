@@ -7170,6 +7170,7 @@
      "lambda",
      "license-manager",
      "logs",
+     "metrics.sagemaker",
      "monitoring",
      "oam",
      "pi",
