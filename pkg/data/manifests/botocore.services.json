@@ -1789,11 +1789,13 @@
    "CreateComputeEnvironment",
    "CreateConsumableResource",
    "CreateJobQueue",
+   "CreateQuotaShare",
    "CreateSchedulingPolicy",
    "CreateServiceEnvironment",
    "DeleteComputeEnvironment",
    "DeleteConsumableResource",
    "DeleteJobQueue",
+   "DeleteQuotaShare",
    "DeleteSchedulingPolicy",
    "DeleteServiceEnvironment",
    "DeregisterJobDefinition",
@@ -1802,6 +1804,7 @@
    "DescribeJobDefinitions",
    "DescribeJobQueues",
    "DescribeJobs",
+   "DescribeQuotaShare",
    "DescribeSchedulingPolicies",
    "DescribeServiceEnvironments",
    "DescribeServiceJob",
@@ -1809,6 +1812,7 @@
    "ListConsumableResources",
    "ListJobs",
    "ListJobsByConsumableResource",
+   "ListQuotaShares",
    "ListSchedulingPolicies",
    "ListServiceJobs",
    "ListTagsForResource",
@@ -1822,8 +1826,10 @@
    "UpdateComputeEnvironment",
    "UpdateConsumableResource",
    "UpdateJobQueue",
+   "UpdateQuotaShare",
    "UpdateSchedulingPolicy",
-   "UpdateServiceEnvironment"
+   "UpdateServiceEnvironment",
+   "UpdateServiceJob"
   ]
  },
  "Bedrock": {
@@ -15129,6 +15135,7 @@
    "ListLexicons",
    "ListSpeechSynthesisTasks",
    "PutLexicon",
+   "StartSpeechSynthesisStream",
    "StartSpeechSynthesisTask",
    "SynthesizeSpeech"
   ]
