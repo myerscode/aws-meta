@@ -12535,9 +12535,13 @@
   "JSONVersion": "1.0",
   "TargetPrefix": "AWSMPCommerceService_v20200301",
   "Operations": [
+   "CancelAgreementPaymentRequest",
    "DescribeAgreement",
+   "GetAgreementPaymentRequest",
    "GetAgreementTerms",
-   "SearchAgreements"
+   "ListAgreementPaymentRequests",
+   "SearchAgreements",
+   "SendAgreementPaymentRequest"
   ]
  },
  "Marketplace Catalog": {
@@ -22518,6 +22522,19 @@
    "UpdateSolNetworkPackage",
    "ValidateSolFunctionPackageContent",
    "ValidateSolNetworkPackageContent"
+  ]
+ },
+ "uxc": {
+  "APIVersion": "2024-07-01",
+  "ServiceId": "uxc",
+  "ServiceFullName": "AWS User Experience Customization",
+  "EndpointPrefix": "uxc",
+  "SignatureVersion": "v4",
+  "Protocol": "rest-json",
+  "Operations": [
+   "GetAccountCustomizations",
+   "ListServices",
+   "UpdateAccountCustomizations"
   ]
  }
 }
