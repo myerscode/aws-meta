@@ -2448,6 +2448,7 @@
      "firehose",
      "fms",
      "gameliftstreams",
+     "globalaccelerator",
      "glue",
      "guardduty",
      "identitystore",
@@ -6746,7 +6747,9 @@
      "network-firewall",
      "notifications",
      "oam",
+     "oidc",
      "pi",
+     "portal.sso",
      "qbusiness",
      "ram",
      "rbin",
@@ -6770,6 +6773,7 @@
      "sns",
      "sqs",
      "ssm",
+     "sso",
      "states",
      "storagegateway",
      "streams.dynamodb",
@@ -6970,6 +6974,7 @@
    {
     "region": "us-isob-east-1",
     "services": [
+     "acm",
      "agreement-marketplace",
      "api.ecr",
      "api.pricing",
@@ -7064,6 +7069,7 @@
    {
     "region": "us-isob-west-1",
     "services": [
+     "acm",
      "api.ecr",
      "appconfig",
      "appconfigdata",
