@@ -12697,6 +12697,25 @@
    "UntagResource"
   ]
  },
+ "Marketplace Discovery": {
+  "APIVersion": "2026-02-05",
+  "ServiceId": "Marketplace Discovery",
+  "ServiceFullName": "AWS Marketplace Discovery",
+  "EndpointPrefix": "discovery-marketplace",
+  "SignatureVersion": "v4",
+  "Protocol": "rest-json",
+  "Operations": [
+   "GetListing",
+   "GetOffer",
+   "GetOfferSet",
+   "GetOfferTerms",
+   "GetProduct",
+   "ListFulfillmentOptions",
+   "ListPurchaseOptions",
+   "SearchFacets",
+   "SearchListings"
+  ]
+ },
  "Marketplace Entitlement Service": {
   "APIVersion": "2017-01-11",
   "ServiceId": "Marketplace Entitlement Service",
@@ -14393,6 +14412,7 @@
    "CancelOrder",
    "CreateOrder",
    "CreateOutpost",
+   "CreateRenewal",
    "CreateSite",
    "DeleteOutpost",
    "DeleteSite",
@@ -14404,6 +14424,7 @@
    "GetOutpostBillingInformation",
    "GetOutpostInstanceTypes",
    "GetOutpostSupportedInstanceTypes",
+   "GetRenewalPricing",
    "GetSite",
    "GetSiteAddress",
    "ListAssetInstances",
@@ -21556,7 +21577,6 @@
   "EndpointPrefix": "drs",
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
-  "JSONVersion": "1.1",
   "Operations": [
    "AssociateSourceNetworkStack",
    "CreateExtendedSourceServer",
