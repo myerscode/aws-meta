@@ -18589,6 +18589,7 @@
    "SearchTrainingPlanOfferings",
    "SendPipelineExecutionStepFailure",
    "SendPipelineExecutionStepSuccess",
+   "StartClusterHealthCheck",
    "StartEdgeDeploymentStage",
    "StartInferenceExperiment",
    "StartMlflowTrackingServer",
