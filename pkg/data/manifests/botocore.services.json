@@ -9997,6 +9997,31 @@
    "UpdateOrganizationConfiguration"
   ]
  },
+ "Interconnect": {
+  "APIVersion": "2022-07-26",
+  "ServiceId": "Interconnect",
+  "ServiceFullName": "Interconnect",
+  "EndpointPrefix": "interconnect",
+  "SignatureVersion": "v4",
+  "Protocol": "smithy-rpc-v2-cbor",
+  "JSONVersion": "1.0",
+  "TargetPrefix": "Interconnect",
+  "Operations": [
+   "AcceptConnectionProposal",
+   "CreateConnection",
+   "DeleteConnection",
+   "DescribeConnectionProposal",
+   "GetConnection",
+   "GetEnvironment",
+   "ListAttachPoints",
+   "ListConnections",
+   "ListEnvironments",
+   "ListTagsForResource",
+   "TagResource",
+   "UntagResource",
+   "UpdateConnection"
+  ]
+ },
  "InternetMonitor": {
   "APIVersion": "2021-06-03",
   "ServiceId": "InternetMonitor",
@@ -21523,6 +21548,7 @@
    "GetLicenseEndpoint",
    "GetLimit",
    "GetMonitor",
+   "GetMonitorSettings",
    "GetQueue",
    "GetQueueEnvironment",
    "GetQueueFleetAssociation",
@@ -21578,6 +21604,7 @@
    "UpdateJob",
    "UpdateLimit",
    "UpdateMonitor",
+   "UpdateMonitorSettings",
    "UpdateQueue",
    "UpdateQueueEnvironment",
    "UpdateQueueFleetAssociation",
