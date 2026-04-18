@@ -2399,6 +2399,7 @@
      "transfer",
      "verifiedpermissions",
      "wafv2",
+     "workspaces",
      "xray"
     ]
    },
@@ -5906,6 +5907,7 @@
      "waf-regional",
      "wafv2",
      "wellarchitected",
+     "workspaces",
      "xray"
     ]
    },
@@ -7539,6 +7541,7 @@
      "redshift",
      "redshift-serverless",
      "resiliencehub",
+     "resource-explorer-2",
      "resource-groups",
      "rolesanywhere",
      "route53profiles",
@@ -7727,6 +7730,7 @@
      "redshift-serverless",
      "rekognition",
      "resiliencehub",
+     "resource-explorer-2",
      "resource-groups",
      "rolesanywhere",
      "route53profiles",
