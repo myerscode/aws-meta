@@ -5190,6 +5190,7 @@
      "transcribestreaming",
      "transfer",
      "verifiedpermissions",
+     "vpc-lattice",
      "wafv2",
      "xray"
     ]
