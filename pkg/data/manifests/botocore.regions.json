@@ -6825,6 +6825,7 @@
     "region": "us-iso-east-1",
     "services": [
      "acm",
+     "acm-pca",
      "agreement-marketplace",
      "api.ecr",
      "api.pricing",
@@ -6926,6 +6927,7 @@
     "region": "us-iso-west-1",
     "services": [
      "acm",
+     "acm-pca",
      "api.ecr",
      "apigateway",
      "appconfig",
