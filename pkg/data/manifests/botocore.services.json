@@ -14934,6 +14934,7 @@
    "DecryptData",
    "EncryptData",
    "GenerateAs2805KekValidation",
+   "GenerateAuthRequestCryptogram",
    "GenerateCardValidationData",
    "GenerateMac",
    "GenerateMacEmvPinChange",
