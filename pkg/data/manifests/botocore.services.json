@@ -1664,6 +1664,7 @@
    "GetBackupVaultAccessPolicy",
    "GetBackupVaultNotifications",
    "GetLegalHold",
+   "GetPITRMalwareScanResults",
    "GetRecoveryPointIndexDetails",
    "GetRecoveryPointRestoreMetadata",
    "GetRestoreJobMetadata",
