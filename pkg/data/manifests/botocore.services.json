@@ -8415,14 +8415,20 @@
   "Protocol": "rest-json",
   "Operations": [
    "AssociateFeed",
+   "CreateDictionary",
    "CreateFeed",
+   "DeleteDictionary",
    "DeleteFeed",
    "DisassociateFeed",
+   "ExportDictionaryEntries",
+   "GetDictionary",
    "GetFeed",
+   "ListDictionaries",
    "ListFeeds",
    "ListTagsForResource",
    "TagResource",
    "UntagResource",
+   "UpdateDictionary",
    "UpdateFeed"
   ]
  },
