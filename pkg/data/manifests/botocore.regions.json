@@ -7132,6 +7132,7 @@
      "ecs",
      "eks",
      "elasticache",
+     "elasticfilesystem",
      "elasticloadbalancing",
      "elasticmapreduce",
      "es",
