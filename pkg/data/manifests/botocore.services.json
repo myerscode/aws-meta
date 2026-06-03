@@ -6932,6 +6932,7 @@
    "CreateCapacityManagerDataExport",
    "CreateCapacityReservation",
    "CreateCapacityReservationBySplitting",
+   "CreateCapacityReservationCancellationQuote",
    "CreateCapacityReservationFleet",
    "CreateCarrierGateway",
    "CreateClientVpnEndpoint",
@@ -7150,6 +7151,7 @@
    "DescribeCapacityBlocks",
    "DescribeCapacityManagerDataExports",
    "DescribeCapacityReservationBillingRequests",
+   "DescribeCapacityReservationCancellationQuotes",
    "DescribeCapacityReservationFleets",
    "DescribeCapacityReservationTopology",
    "DescribeCapacityReservations",
@@ -18558,6 +18560,7 @@
    "CreateInferenceComponent",
    "CreateInferenceExperiment",
    "CreateInferenceRecommendationsJob",
+   "CreateJob",
    "CreateLabelingJob",
    "CreateMlflowApp",
    "CreateMlflowTrackingServer",
@@ -18626,6 +18629,7 @@
    "DeleteImageVersion",
    "DeleteInferenceComponent",
    "DeleteInferenceExperiment",
+   "DeleteJob",
    "DeleteMlflowApp",
    "DeleteMlflowTrackingServer",
    "DeleteModel",
@@ -18693,6 +18697,8 @@
    "DescribeInferenceComponent",
    "DescribeInferenceExperiment",
    "DescribeInferenceRecommendationsJob",
+   "DescribeJob",
+   "DescribeJobSchemaVersion",
    "DescribeLabelingJob",
    "DescribeLineageGroup",
    "DescribeMlflowApp",
@@ -18782,6 +18788,8 @@
    "ListInferenceExperiments",
    "ListInferenceRecommendationsJobSteps",
    "ListInferenceRecommendationsJobs",
+   "ListJobSchemaVersions",
+   "ListJobs",
    "ListLabelingJobs",
    "ListLabelingJobsForWorkteam",
    "ListLineageGroups",
@@ -18854,6 +18862,7 @@
    "StopHyperParameterTuningJob",
    "StopInferenceExperiment",
    "StopInferenceRecommendationsJob",
+   "StopJob",
    "StopLabelingJob",
    "StopMlflowTrackingServer",
    "StopMonitoringSchedule",
@@ -19008,6 +19017,20 @@
    "GetDeployments",
    "GetDeviceRegistration",
    "SendHeartbeat"
+  ]
+ },
+ "SagemakerJobRuntime": {
+  "APIVersion": "2026-02-01",
+  "ServiceId": "SagemakerJobRuntime",
+  "ServiceFullName": "Sagemaker Job Runtime Service",
+  "EndpointPrefix": "job-runtime.sagemaker",
+  "SignatureVersion": "v4",
+  "Protocol": "rest-json",
+  "Operations": [
+   "CompleteRollout",
+   "Sample",
+   "SampleWithResponseStream",
+   "UpdateReward"
   ]
  },
  "Scheduler": {
