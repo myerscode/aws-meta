@@ -8008,6 +8008,8 @@
    "GetManagedScalingPolicy",
    "GetOnClusterAppUIPresignedURL",
    "GetPersistentAppUIPresignedURL",
+   "GetSession",
+   "GetSessionEndpoint",
    "GetStudioSessionMapping",
    "ListBootstrapActions",
    "ListClusters",
@@ -8017,6 +8019,7 @@
    "ListNotebookExecutions",
    "ListReleaseLabels",
    "ListSecurityConfigurations",
+   "ListSessions",
    "ListSteps",
    "ListStudioSessionMappings",
    "ListStudios",
@@ -8038,8 +8041,10 @@
    "SetUnhealthyNodeReplacement",
    "SetVisibleToAllUsers",
    "StartNotebookExecution",
+   "StartSession",
    "StopNotebookExecution",
    "TerminateJobFlows",
+   "TerminateSession",
    "UpdateStudio",
    "UpdateStudioSessionMapping"
   ]
@@ -9240,6 +9245,7 @@
    "GetCrawlerMetrics",
    "GetCrawlers",
    "GetCustomEntityType",
+   "GetDashboardUrl",
    "GetDataCatalogEncryptionSettings",
    "GetDataQualityModel",
    "GetDataQualityModelResult",
@@ -9281,6 +9287,7 @@
    "GetSecurityConfiguration",
    "GetSecurityConfigurations",
    "GetSession",
+   "GetSessionEndpoint",
    "GetStatement",
    "GetTable",
    "GetTableOptimizer",
@@ -22414,6 +22421,7 @@
    "StopStream",
    "TagResource",
    "UntagResource",
+   "UpdateAdConfiguration",
    "UpdateChannel",
    "UpdatePlaybackRestrictionPolicy"
   ]
