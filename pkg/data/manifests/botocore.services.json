@@ -6922,6 +6922,7 @@
    "AssociateTrunkInterface",
    "AssociateVpcCidrBlock",
    "AttachClassicLinkVpc",
+   "AttachImageWatermark",
    "AttachInternetGateway",
    "AttachNetworkInterface",
    "AttachVerifiedAccessTrustProvider",
@@ -7341,6 +7342,7 @@
    "DescribeVpnConnections",
    "DescribeVpnGateways",
    "DetachClassicLinkVpc",
+   "DetachImageWatermark",
    "DetachInternetGateway",
    "DetachNetworkInterface",
    "DetachVerifiedAccessTrustProvider",
@@ -19706,7 +19708,14 @@
   "SignatureVersion": "v4",
   "Protocol": "rest-json",
   "Operations": [
-   "CreateOAuth2Token"
+   "CreateOAuth2Token",
+   "DeleteConsoleAuthorizationConfiguration",
+   "DeleteResourcePermissionStatement",
+   "GetConsoleAuthorizationConfiguration",
+   "GetResourcePolicy",
+   "ListResourcePermissionStatements",
+   "PutConsoleAuthorizationConfiguration",
+   "PutResourcePermissionStatement"
   ]
  },
  "SimSpaceWeaver": {
