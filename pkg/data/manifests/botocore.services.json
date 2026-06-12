@@ -9762,7 +9762,8 @@
    "StartFHIRExportJob",
    "StartFHIRImportJob",
    "TagResource",
-   "UntagResource"
+   "UntagResource",
+   "UpdateFHIRDatastore"
   ]
  },
  "IAM": {
