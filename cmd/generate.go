@@ -32,12 +32,24 @@ var generateCmd = &cobra.Command{
 		}
 
 		for _, tag := range tags {
+			util.LogInfo(fmt.Sprintf("Processing tag: %s", tag.Name))
+
+			// Download all needed data in a single tarball request instead
+			// of making 300+ individual API calls per tag
+			util.LogInfo(fmt.Sprintf("Downloading tarball for tag: %s", tag.Name))
+			files, err := botocore.DownloadTagData(tag)
+			if err != nil {
+				util.PrintErrorAndExit(err)
+			}
+
 			util.LogInfo(fmt.Sprintf("Generating Partition List for Tag: %s", tag.Name))
-			botocore.GeneratePartitionList(tag)
+			botocore.GeneratePartitionList(tag, files)
+
 			util.LogInfo(fmt.Sprintf("Generating Service List for Tag: %s", tag.Name))
-			botocore.GenerateServiceList(tag)
+			botocore.GenerateServiceList(tag, files)
+
 			util.LogInfo(fmt.Sprintf("Generating Region Service List for Tag: %s", tag.Name))
-			botocore.GenerateRegionServicesList(tag)
+			botocore.GenerateRegionServicesList(tag, files)
 		}
 	},
 }

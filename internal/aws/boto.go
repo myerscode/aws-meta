@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
-	"sync"
+	"strings"
 
 	"github.com/myerscode/aws-meta/internal/github"
 	"github.com/myerscode/aws-meta/internal/util"
@@ -52,16 +52,28 @@ type PartitionRegion struct {
 	RegionName string
 }
 
-func (bc Botocore) GeneratePartitionList(tag github.RepoTag) PartitionSchemas {
+// DownloadTagData fetches all needed botocore data for a tag in a single
+// tarball download, replacing hundreds of individual API calls with one
+// HTTP request.
+func (bc Botocore) DownloadTagData(tag github.RepoTag) (github.TarballFiles, error) {
+	// Only extract the paths we actually need from the ~50MB tarball
+	pathPrefixes := []string{
+		"botocore/data/partitions.json",
+		"botocore/data/endpoints.json",
+		"botocore/data/", // service schema files live under botocore/data/{service}/{version}/
+	}
 
-	meta, metaErr := bc.getPartitionMeta(tag)
+	return bc.Repo.DownloadAndExtract(tag, pathPrefixes)
+}
 
+// GeneratePartitionList builds partition metadata from pre-extracted tarball data.
+func (bc Botocore) GeneratePartitionList(tag github.RepoTag, files github.TarballFiles) PartitionSchemas {
+	meta, metaErr := parsePartitionMeta(files)
 	if metaErr != nil {
 		util.PrintErrorAndExit(metaErr)
 	}
 
 	fmt.Printf("Version: %s\n", meta.Version)
-
 	fmt.Printf("Number of partitions: %d\n", len(meta.Partitions))
 
 	var partitionSchemas PartitionSchemas
@@ -78,7 +90,6 @@ func (bc Botocore) GeneratePartitionList(tag github.RepoTag) PartitionSchemas {
 			}
 
 			err := util.SortByField(&partitionRegions, "RegionId")
-
 			if err != nil {
 				util.PrintErrorAndExit(err)
 			}
@@ -95,19 +106,16 @@ func (bc Botocore) GeneratePartitionList(tag github.RepoTag) PartitionSchemas {
 	}
 
 	err := util.SortByField(&partitionSchemas, "ID")
-
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
 
 	err = SaveManifestFile(partitionSchemas, "botocore.partitions.json")
-
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
 
 	err = SaveArchiveFile(partitionSchemas, fmt.Sprintf("botocore.partitions.%s.json", tag.Name))
-
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
@@ -115,13 +123,13 @@ func (bc Botocore) GeneratePartitionList(tag github.RepoTag) PartitionSchemas {
 	return partitionSchemas
 }
 
-func (bc Botocore) getPartitionMeta(tag github.RepoTag) (BotoPartitionsFiles, error) {
+// parsePartitionMeta reads partition data from the pre-extracted files map.
+func parsePartitionMeta(files github.TarballFiles) (BotoPartitionsFiles, error) {
 	var partition BotoPartitionsFiles
 
-	blob, err := bc.Repo.GetBlobFromTag(tag.Name, "data/partitions.json")
-
-	if err != nil {
-		return BotoPartitionsFiles{}, err
+	blob, ok := files["botocore/data/partitions.json"]
+	if !ok {
+		return BotoPartitionsFiles{}, fmt.Errorf("partitions.json not found in tarball")
 	}
 
 	if err := json.Unmarshal(blob, &partition); err != nil {
@@ -131,42 +139,56 @@ func (bc Botocore) getPartitionMeta(tag github.RepoTag) (BotoPartitionsFiles, er
 	return partition, nil
 }
 
-func (bc Botocore) GenerateServiceList(tag github.RepoTag) ServiceSchemas {
+// GenerateServiceList builds service metadata from pre-extracted tarball data.
+// Instead of making 300+ individual HTTP requests, it reads service schema
+// files directly from the extracted tarball contents.
+func (bc Botocore) GenerateServiceList(tag github.RepoTag, files github.TarballFiles) ServiceSchemas {
+	util.LogInfo(fmt.Sprintf("Generating service list from tarball data for tag: %s", tag.Name))
 
-	util.LogInfo(fmt.Sprintf("GetServiceDataSources for Tag: %s", tag.Name))
-
-	dataSources, err := bc.getServiceDataSources(tag)
-
-	if err != nil {
-		util.PrintErrorAndExit(err)
-	}
-
-	var wg sync.WaitGroup
-	serviceSchemaChannel := make(chan ServiceSchema, len(dataSources))
-
-	for _, dataSource := range dataSources {
-		wg.Add(1)
-		go generateServiceSchema(&wg, bc, tag, dataSource, serviceSchemaChannel)
-	}
-
-	wg.Wait()
-
-	close(serviceSchemaChannel)
+	dataSources := findServiceDataSources(files)
 
 	serviceSchemas := ServiceSchemas{}
 
-	for serviceSchema := range serviceSchemaChannel {
+	for _, dataSource := range dataSources {
+		blob, ok := files[dataSource.Filename]
+		if !ok {
+			util.LogWarning(fmt.Sprintf("Service file not found in tarball: %s", dataSource.Filename))
+			continue
+		}
+
+		dataSchema := DataSchema{}
+		if err := json.Unmarshal(blob, &dataSchema); err != nil {
+			util.LogWarning(fmt.Sprintf("Failed to parse service schema %s: %v", dataSource.Filename, err))
+			continue
+		}
+
+		var operations []string
+		for operation := range dataSchema.Operations {
+			operations = append(operations, operation)
+		}
+
+		serviceSchema := ServiceSchema{
+			APIVersion:       dataSource.ApiVersion,
+			ServiceId:        dataSchema.Metadata.ServiceId,
+			ServiceFullName:  dataSchema.Metadata.ServiceFullName,
+			EndpointPrefix:   dataSchema.Metadata.EndpointPrefix,
+			GlobalEndpoint:   dataSchema.Metadata.GlobalEndpoint,
+			SignatureVersion: dataSchema.Metadata.SignatureVersion,
+			Protocol:         dataSchema.Metadata.Protocol,
+			JSONVersion:      dataSchema.Metadata.JSONVersion,
+			TargetPrefix:     dataSchema.Metadata.TargetPrefix,
+			Operations:       util.Sort(operations),
+		}
+
 		serviceSchemas[serviceSchema.ServiceId] = serviceSchema
 	}
 
-	err = SaveManifestFile(serviceSchemas, "botocore.services.json")
-
+	err := SaveManifestFile(serviceSchemas, "botocore.services.json")
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
 
 	err = SaveArchiveFile(serviceSchemas, fmt.Sprintf("botocore.services.%s.json", tag.Name))
-
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
@@ -174,58 +196,16 @@ func (bc Botocore) GenerateServiceList(tag github.RepoTag) ServiceSchemas {
 	return serviceSchemas
 }
 
-func generateServiceSchema(wg *sync.WaitGroup, bc Botocore, tag github.RepoTag, dataSource BotoDataSource, serviceSchemaChan chan<- ServiceSchema) {
-	defer wg.Done()
+// findServiceDataSources discovers service schema files from the extracted
+// tarball file map, picking the latest API version for each service.
+// This replaces the tree API call + regex matching over the API response.
+func findServiceDataSources(files github.TarballFiles) BotoServiceDataSources {
+	dataSourceMap := make(BotoServiceDataSources)
 
-	dataSchema := DataSchema{}
+	re := regexp.MustCompile(`^botocore/data/(?P<service>.+?)/(?P<apiVersion>.+?)/service-\d+\.json$`)
 
-	rawData, err := github.GetGithubRepoBlobs(bc.Repo.Owner, bc.Repo.RepoName, tag.Name, dataSource.Filename)
-
-	if err != nil {
-		util.PrintErrorAndExit(err)
-	}
-
-	if err := json.Unmarshal(rawData, &dataSchema); err != nil {
-		util.PrintErrorAndExit(err)
-	}
-
-	var operations []string
-
-	for operation := range dataSchema.Operations {
-		operations = append(operations, operation)
-	}
-
-	// Create service schema with required fields
-	serviceSchema := ServiceSchema{
-		APIVersion:       dataSource.ApiVersion,
-		ServiceId:        dataSchema.Metadata.ServiceId,
-		ServiceFullName:  dataSchema.Metadata.ServiceFullName,
-		EndpointPrefix:   dataSchema.Metadata.EndpointPrefix,
-		GlobalEndpoint:   dataSchema.Metadata.GlobalEndpoint,
-		SignatureVersion: dataSchema.Metadata.SignatureVersion,
-		Protocol:         dataSchema.Metadata.Protocol,
-		JSONVersion:      dataSchema.Metadata.JSONVersion,
-		TargetPrefix:     dataSchema.Metadata.TargetPrefix,
-		Operations:       util.Sort(operations),
-	}
-
-	serviceSchemaChan <- serviceSchema
-}
-
-func (bc Botocore) getServiceDataSources(tag github.RepoTag) (BotoServiceDataSources, error) {
-
-	trees, err := bc.Repo.GetGithubRepoTrees(tag.Commit.SHA, "botocore/data")
-
-	if err != nil {
-		return map[string]BotoDataSource{}, err
-	}
-
-	dataSourceMap := map[string]BotoDataSource{}
-
-	re := regexp.MustCompile(`(?P<service>.+?)/(?P<apiVersion>.+?)/service-\d.json`)
-
-	for _, value := range trees {
-		matches := re.FindStringSubmatch(value.Path)
+	for path := range files {
+		matches := re.FindStringSubmatch(path)
 		if matches == nil {
 			continue
 		}
@@ -233,28 +213,26 @@ func (bc Botocore) getServiceDataSources(tag github.RepoTag) (BotoServiceDataSou
 		service := matches[re.SubexpIndex("service")]
 		apiVersion := matches[re.SubexpIndex("apiVersion")]
 
-		if _, ok := dataSourceMap[service]; ok {
-			if apiVersion < dataSourceMap[service].ApiVersion {
+		if existing, ok := dataSourceMap[service]; ok {
+			if apiVersion < existing.ApiVersion {
 				continue
 			}
 		}
 
 		dataSourceMap[service] = BotoDataSource{
 			ApiVersion: apiVersion,
-			Filename:   fmt.Sprintf("%s/%s", "botocore/data", matches[0]),
-			Sha:        value.Sha,
+			Filename:   path,
 		}
 	}
 
-	return dataSourceMap, nil
+	return dataSourceMap
 }
 
-func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag) RegionSchemas {
+// GenerateRegionServicesList builds region-to-service mappings from pre-extracted tarball data.
+func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag, files github.TarballFiles) RegionSchemas {
+	util.LogInfo(fmt.Sprintf("GenerateRegionServicesList from tarball data for tag: %s", tag.Name))
 
-	util.LogInfo(fmt.Sprintf("GenerateRegionServicesList for Tag: %s", tag.Name))
-
-	endpointData, endpointDataError := bc.getEndpointData(tag)
-
+	endpointData, endpointDataError := parseEndpointData(files)
 	if endpointDataError != nil {
 		util.PrintErrorAndExit(endpointDataError)
 	}
@@ -286,13 +264,11 @@ func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag) RegionSchemas 
 	sortRegionSchemas(summaries)
 
 	err := SaveManifestFile(summaries, "botocore.regions.json")
-
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
 
 	err = SaveArchiveFile(summaries, fmt.Sprintf("botocore.regions.%s.json", tag.Name))
-
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
@@ -300,20 +276,35 @@ func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag) RegionSchemas 
 	return summaries
 }
 
-func (bc Botocore) getEndpointData(tag github.RepoTag) (EndpointFile, error) {
-	var partition EndpointFile
+// parseEndpointData reads endpoint data from the pre-extracted files map.
+func parseEndpointData(files github.TarballFiles) (EndpointFile, error) {
+	var endpointFile EndpointFile
 
-	blob, err := bc.Repo.GetBlobFromTag(tag.Name, "data/endpoints.json")
+	// Try both possible locations for the endpoints file
+	var blob []byte
+	var ok bool
 
-	if err != nil {
+	blob, ok = files["botocore/data/endpoints.json"]
+	if !ok {
+		// Some versions might not have the nested path
+		for path, data := range files {
+			if strings.HasSuffix(path, "endpoints.json") {
+				blob = data
+				ok = true
+				break
+			}
+		}
+	}
+
+	if !ok {
+		return EndpointFile{}, fmt.Errorf("endpoints.json not found in tarball")
+	}
+
+	if err := json.Unmarshal(blob, &endpointFile); err != nil {
 		return EndpointFile{}, err
 	}
 
-	if err := json.Unmarshal(blob, &partition); err != nil {
-		return EndpointFile{}, err
-	}
-
-	return partition, nil
+	return endpointFile, nil
 }
 
 func sortRegionSchemas(schemas RegionSchemas) {

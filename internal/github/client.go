@@ -36,7 +36,7 @@ func (c Client) Fetch(url string) ([]byte, error) {
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 	if c.token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.token)
-	} else if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+	} else if token := os.Getenv("AWSMETA_GITHUB_TOKEN"); token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	} else {
 		// No token provided, proceed without authentication

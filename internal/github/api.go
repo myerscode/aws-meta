@@ -93,7 +93,7 @@ func (r Repo) GetBlobFromTag(tagName string, filename string) ([]byte, error) {
 func (r Repo) FetchTags(perPage int) ([]RepoTag, error) {
 	apiUrl := fmt.Sprintf("https://api.github.com/repos/%s/%s/tags?per_page=%d", r.Owner, r.RepoName, perPage)
 
-	blob, err := fetchContent(apiUrl)
+	blob, err := r.Client.Fetch(apiUrl)
 
 	if err != nil {
 		return nil, err
@@ -185,8 +185,8 @@ func githubAPIWithGetMethod(path string) ([]byte, error) {
 	// Add common headers
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	// Check for GITHUB_TOKEN and add authorization if present
-	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+	// Check for AWSMETA_GITHUB_TOKEN and add authorization if present
+	if token := os.Getenv("AWSMETA_GITHUB_TOKEN"); token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	} else {
 		// No token provided, proceed without authentication
