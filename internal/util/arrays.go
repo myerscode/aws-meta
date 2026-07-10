@@ -18,7 +18,7 @@ func SortByField(slice any, fieldName string) error {
 	v := reflect.ValueOf(slice)
 
 	// Must be a pointer to a slice
-	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Slice {
+	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Slice {
 		return fmt.Errorf("expected pointer to slice, got %T", slice)
 	}
 

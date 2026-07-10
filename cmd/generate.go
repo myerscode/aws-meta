@@ -18,7 +18,6 @@ var generateCmd = &cobra.Command{
 			Config: github.Config{
 				Owner:    "boto",
 				RepoName: "botocore",
-				Branch:   "main",
 			},
 			Client: github.NewGitHubClient(""),
 		}

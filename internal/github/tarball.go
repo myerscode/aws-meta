@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/myerscode/aws-meta/internal/util"
 )
@@ -31,19 +32,20 @@ func (r Repo) DownloadAndExtract(tag RepoTag, pathPrefixes []string) (TarballFil
 	}
 
 	// Use auth token if available to avoid rate limiting
-	if r.Client.token != "" {
-		req.Header.Set("Authorization", "Bearer "+r.Client.token)
+	if r.token != "" {
+		req.Header.Set("Authorization", "Bearer "+r.token)
 	} else if token := os.Getenv("AWSMETA_GITHUB_TOKEN"); token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	} else {
 		util.LogWarning("No AWSMETA_GITHUB_TOKEN set. Tarball download may be rate-limited.")
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	httpClient := &http.Client{Timeout: 5 * time.Minute}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("downloading tarball: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("tarball download failed with status %d", resp.StatusCode)
@@ -60,7 +62,7 @@ func extractFromTarGz(reader io.Reader, pathPrefixes []string) (TarballFiles, er
 	if err != nil {
 		return nil, fmt.Errorf("creating gzip reader: %w", err)
 	}
-	defer gz.Close()
+	defer func() { _ = gz.Close() }()
 
 	tr := tar.NewReader(gz)
 	files := make(TarballFiles)

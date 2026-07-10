@@ -22,7 +22,7 @@ type EndpointFileEndpointPartitions struct {
 type EndpointFileOutputs struct {
 	DNSSuffix            string `json:"dnsSuffix"`
 	DualStackDNSSuffix   string `json:"dualStackDnsSuffix,omitempty"`
-	ImplicitGlobalRegion string `json_json:"implicitGlobalRegion,omitempty"`
+	ImplicitGlobalRegion string `json:"implicitGlobalRegion,omitempty"`
 	Name                 string `json:"name"`
 	SupportsDualStack    bool   `json:"supportsDualStack,omitempty"`
 	SupportsFIPS         bool   `json:"supportsFIPS,omitempty"`

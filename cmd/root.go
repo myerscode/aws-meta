@@ -1,13 +1,11 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/myerscode/aws-meta/internal/util"
 	"github.com/spf13/pflag"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -53,8 +51,8 @@ func initConfig() {
 	viper.SetEnvPrefix("AWSMETA")
 	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err == nil {
-		util.LogError(fmt.Sprintf("Error sing config file: %s", viper.ConfigFileUsed()))
+	if err := viper.ReadInConfig(); err != nil {
+		util.LogError(fmt.Sprintf("Error using config file: %s", viper.ConfigFileUsed()))
 	}
 }
 

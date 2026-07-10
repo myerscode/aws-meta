@@ -6,5 +6,4 @@ type BotoServiceDataSources map[string]BotoDataSource
 type BotoDataSource struct {
 	ApiVersion string
 	Filename   string
-	Sha        string
 }

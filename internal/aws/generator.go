@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/myerscode/aws-meta/internal/util"
 )
 
 type ServiceSchemas map[string]ServiceSchema
@@ -37,47 +35,29 @@ type RegionSummary struct {
 	Services   []string `json:"services"`
 }
 
-func TouchResultsFile(path string) {
-
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		util.PrintErrorAndExit(err)
-	}
-
-	file, err := os.Create(path)
-
-	if err != nil {
-		util.PrintErrorAndExit(err)
-	}
-
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			util.PrintErrorAndExit(err)
-		}
-	}(file)
-}
-
-func SaveArchiveFile(jsonData interface{}, fileName string) error {
+func SaveArchiveFile(jsonData any, fileName string) error {
 	metaDataFile := fmt.Sprintf("pkg/data/archive/%s", fileName)
-
 	return SaveData(jsonData, metaDataFile)
 }
 
-func SaveManifestFile(jsonData interface{}, fileName string) error {
+func SaveManifestFile(jsonData any, fileName string) error {
 	metaDataFile := fmt.Sprintf("pkg/data/manifests/%s", fileName)
-
 	return SaveData(jsonData, metaDataFile)
 }
 
-func SaveData(jsonData interface{}, fileName string) error {
+func SaveData(jsonData any, fileName string) error {
+	dir := filepath.Dir(fileName)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("creating directory %s: %w", dir, err)
+	}
 
-	TouchResultsFile(fileName)
-
-	data, _ := json.MarshalIndent(jsonData, "", " ")
+	data, err := json.MarshalIndent(jsonData, "", " ")
+	if err != nil {
+		return fmt.Errorf("error marshalling data: %w", err)
+	}
 
 	if err := os.WriteFile(fileName, data, 0644); err != nil {
-		util.PrintErrorAndExit(err)
+		return fmt.Errorf("error writing file %s: %w", fileName, err)
 	}
 
 	return nil

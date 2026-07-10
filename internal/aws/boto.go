@@ -56,11 +56,10 @@ type PartitionRegion struct {
 // tarball download, replacing hundreds of individual API calls with one
 // HTTP request.
 func (bc Botocore) DownloadTagData(tag github.RepoTag) (github.TarballFiles, error) {
-	// Only extract the paths we actually need from the ~50MB tarball
+	// Extract everything under botocore/data/ which includes partitions.json,
+	// endpoints.json, and all service schema files
 	pathPrefixes := []string{
-		"botocore/data/partitions.json",
-		"botocore/data/endpoints.json",
-		"botocore/data/", // service schema files live under botocore/data/{service}/{version}/
+		"botocore/data/",
 	}
 
 	return bc.Repo.DownloadAndExtract(tag, pathPrefixes)
@@ -196,22 +195,23 @@ func (bc Botocore) GenerateServiceList(tag github.RepoTag, files github.TarballF
 	return serviceSchemas
 }
 
+// serviceSchemaRe matches service schema file paths in the tarball.
+var serviceSchemaRe = regexp.MustCompile(`^botocore/data/(?P<service>.+?)/(?P<apiVersion>.+?)/service-\d+\.json$`)
+
 // findServiceDataSources discovers service schema files from the extracted
 // tarball file map, picking the latest API version for each service.
 // This replaces the tree API call + regex matching over the API response.
 func findServiceDataSources(files github.TarballFiles) BotoServiceDataSources {
 	dataSourceMap := make(BotoServiceDataSources)
 
-	re := regexp.MustCompile(`^botocore/data/(?P<service>.+?)/(?P<apiVersion>.+?)/service-\d+\.json$`)
-
 	for path := range files {
-		matches := re.FindStringSubmatch(path)
+		matches := serviceSchemaRe.FindStringSubmatch(path)
 		if matches == nil {
 			continue
 		}
 
-		service := matches[re.SubexpIndex("service")]
-		apiVersion := matches[re.SubexpIndex("apiVersion")]
+		service := matches[serviceSchemaRe.SubexpIndex("service")]
+		apiVersion := matches[serviceSchemaRe.SubexpIndex("apiVersion")]
 
 		if existing, ok := dataSourceMap[service]; ok {
 			if apiVersion < existing.ApiVersion {
