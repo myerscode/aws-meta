@@ -1,4 +1,4 @@
-package aws
+package generate
 
 import (
 	"encoding/json"
@@ -7,8 +7,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/myerscode/aws-meta/internal/github"
-	"github.com/myerscode/aws-meta/internal/util"
+	"github.com/myerscode/aws-meta/cli/internal/github"
+	"github.com/myerscode/aws-meta/cli/internal/util"
+	"github.com/myerscode/aws-meta/internal/aws"
 )
 
 type Botocore struct {
@@ -21,6 +22,7 @@ type DataSchema struct {
 	Metadata   MetaData              `json:"metadata"`
 	Operations map[string]Operations `json:"operations"`
 }
+
 type MetaData struct {
 	ServiceId        string `json:"serviceId"`
 	ServiceFullName  string `json:"serviceFullName"`
@@ -32,41 +34,74 @@ type MetaData struct {
 	JSONVersion      string `json:"jsonVersion,omitempty"`
 	TargetPrefix     string `json:"targetPrefix,omitempty"`
 }
+
 type Operations struct {
 	Name string `json:"name"`
 }
 
-type PartitionSchemas []PartitionSchema
-
-type PartitionSchema struct {
-	ID                   string
-	RegionRegex          string
-	DNSSuffix            string
-	DualStackDNSSuffix   string
-	ImplicitGlobalRegion string
-	Regions              []PartitionRegion
+// BotoPartitionsFiles represents the partition.json file in botocore
+type BotoPartitionsFiles struct {
+	Partitions []BotoPartitionsFilePartition `json:"partitions"`
+	Version    string                        `json:"version"`
 }
 
-type PartitionRegion struct {
-	RegionId   string
-	RegionName string
+type BotoPartitionsFilePartition struct {
+	ID      string `json:"id"`
+	Outputs struct {
+		DNSSuffix            string `json:"dnsSuffix"`
+		DualStackDNSSuffix   string `json:"dualStackDnsSuffix"`
+		ImplicitGlobalRegion string `json:"implicitGlobalRegion"`
+		Name                 string `json:"name"`
+		SupportsDualStack    bool   `json:"supportsDualStack"`
+		SupportsFIPS         bool   `json:"supportsFIPS"`
+	} `json:"outputs"`
+	RegionRegex string                                        `json:"regionRegex"`
+	Regions     map[string]BotoPartitionsFileRegionDefinition `json:"regions"`
+}
+
+type BotoPartitionsFileRegionDefinition struct {
+	Description string `json:"description"`
+}
+
+// EndpointFile is the top-level structure for endpoints.json
+type EndpointFile struct {
+	EndpointPartitions []EndpointFilePartition `json:"partitions"`
+}
+
+type EndpointFilePartition struct {
+	ID       string                         `json:"partition"`
+	Regions  map[string]EndpointFileRegion  `json:"regions"`
+	Services map[string]EndpointFileService `json:"services"`
+}
+
+type EndpointFileRegion struct {
+	Description string `json:"description,omitempty"`
+}
+
+type EndpointFileService struct {
+	Endpoints map[string]json.RawMessage `json:"endpoints"`
+}
+
+// BotoServiceDataSources maps service names to their data source info.
+type BotoServiceDataSources map[string]BotoDataSource
+
+type BotoDataSource struct {
+	ApiVersion string
+	Filename   string
 }
 
 // DownloadTagData fetches all needed botocore data for a tag in a single
 // tarball download, replacing hundreds of individual API calls with one
 // HTTP request.
 func (bc Botocore) DownloadTagData(tag github.RepoTag) (github.TarballFiles, error) {
-	// Extract everything under botocore/data/ which includes partitions.json,
-	// endpoints.json, and all service schema files
 	pathPrefixes := []string{
 		"botocore/data/",
 	}
-
 	return bc.Repo.DownloadAndExtract(tag, pathPrefixes)
 }
 
 // GeneratePartitionList builds partition metadata from pre-extracted tarball data.
-func (bc Botocore) GeneratePartitionList(tag github.RepoTag, files github.TarballFiles) PartitionSchemas {
+func (bc Botocore) GeneratePartitionList(tag github.RepoTag, files github.TarballFiles) aws.PartitionSchemas {
 	meta, metaErr := parsePartitionMeta(files)
 	if metaErr != nil {
 		util.PrintErrorAndExit(metaErr)
@@ -75,33 +110,31 @@ func (bc Botocore) GeneratePartitionList(tag github.RepoTag, files github.Tarbal
 	fmt.Printf("Version: %s\n", meta.Version)
 	fmt.Printf("Number of partitions: %d\n", len(meta.Partitions))
 
-	var partitionSchemas PartitionSchemas
+	var partitionSchemas aws.PartitionSchemas
 
-	if len(meta.Partitions) > 0 {
-		for _, partition := range meta.Partitions {
-			var partitionRegions []PartitionRegion
+	for _, partition := range meta.Partitions {
+		var partitionRegions []aws.PartitionRegion
 
-			for regionID, region := range partition.Regions {
-				partitionRegions = append(partitionRegions, PartitionRegion{
-					RegionId:   regionID,
-					RegionName: region.Description,
-				})
-			}
-
-			err := util.SortByField(&partitionRegions, "RegionId")
-			if err != nil {
-				util.PrintErrorAndExit(err)
-			}
-
-			partitionSchemas = append(partitionSchemas, PartitionSchema{
-				ID:                   partition.ID,
-				RegionRegex:          partition.RegionRegex,
-				Regions:              partitionRegions,
-				DNSSuffix:            partition.Outputs.DNSSuffix,
-				DualStackDNSSuffix:   partition.Outputs.DualStackDNSSuffix,
-				ImplicitGlobalRegion: partition.Outputs.ImplicitGlobalRegion,
+		for regionID, region := range partition.Regions {
+			partitionRegions = append(partitionRegions, aws.PartitionRegion{
+				RegionId:   regionID,
+				RegionName: region.Description,
 			})
 		}
+
+		err := util.SortByField(&partitionRegions, "RegionId")
+		if err != nil {
+			util.PrintErrorAndExit(err)
+		}
+
+		partitionSchemas = append(partitionSchemas, aws.PartitionSchema{
+			ID:                   partition.ID,
+			RegionRegex:          partition.RegionRegex,
+			Regions:              partitionRegions,
+			DNSSuffix:            partition.Outputs.DNSSuffix,
+			DualStackDNSSuffix:   partition.Outputs.DualStackDNSSuffix,
+			ImplicitGlobalRegion: partition.Outputs.ImplicitGlobalRegion,
+		})
 	}
 
 	err := util.SortByField(&partitionSchemas, "ID")
@@ -122,7 +155,6 @@ func (bc Botocore) GeneratePartitionList(tag github.RepoTag, files github.Tarbal
 	return partitionSchemas
 }
 
-// parsePartitionMeta reads partition data from the pre-extracted files map.
 func parsePartitionMeta(files github.TarballFiles) (BotoPartitionsFiles, error) {
 	var partition BotoPartitionsFiles
 
@@ -138,15 +170,15 @@ func parsePartitionMeta(files github.TarballFiles) (BotoPartitionsFiles, error) 
 	return partition, nil
 }
 
+// serviceSchemaRe matches service schema file paths in the tarball.
+var serviceSchemaRe = regexp.MustCompile(`^botocore/data/(?P<service>.+?)/(?P<apiVersion>.+?)/service-\d+\.json$`)
+
 // GenerateServiceList builds service metadata from pre-extracted tarball data.
-// Instead of making 300+ individual HTTP requests, it reads service schema
-// files directly from the extracted tarball contents.
-func (bc Botocore) GenerateServiceList(tag github.RepoTag, files github.TarballFiles) ServiceSchemas {
+func (bc Botocore) GenerateServiceList(tag github.RepoTag, files github.TarballFiles) aws.ServiceSchemas {
 	util.LogInfo(fmt.Sprintf("Generating service list from tarball data for tag: %s", tag.Name))
 
 	dataSources := findServiceDataSources(files)
-
-	serviceSchemas := ServiceSchemas{}
+	serviceSchemas := aws.ServiceSchemas{}
 
 	for _, dataSource := range dataSources {
 		blob, ok := files[dataSource.Filename]
@@ -166,7 +198,7 @@ func (bc Botocore) GenerateServiceList(tag github.RepoTag, files github.TarballF
 			operations = append(operations, operation)
 		}
 
-		serviceSchema := ServiceSchema{
+		serviceSchema := aws.ServiceSchema{
 			APIVersion:       dataSource.ApiVersion,
 			ServiceId:        dataSchema.Metadata.ServiceId,
 			ServiceFullName:  dataSchema.Metadata.ServiceFullName,
@@ -195,12 +227,6 @@ func (bc Botocore) GenerateServiceList(tag github.RepoTag, files github.TarballF
 	return serviceSchemas
 }
 
-// serviceSchemaRe matches service schema file paths in the tarball.
-var serviceSchemaRe = regexp.MustCompile(`^botocore/data/(?P<service>.+?)/(?P<apiVersion>.+?)/service-\d+\.json$`)
-
-// findServiceDataSources discovers service schema files from the extracted
-// tarball file map, picking the latest API version for each service.
-// This replaces the tree API call + regex matching over the API response.
 func findServiceDataSources(files github.TarballFiles) BotoServiceDataSources {
 	dataSourceMap := make(BotoServiceDataSources)
 
@@ -229,7 +255,7 @@ func findServiceDataSources(files github.TarballFiles) BotoServiceDataSources {
 }
 
 // GenerateRegionServicesList builds region-to-service mappings from pre-extracted tarball data.
-func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag, files github.TarballFiles) RegionSchemas {
+func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag, files github.TarballFiles) aws.RegionSchemas {
 	util.LogInfo(fmt.Sprintf("GenerateRegionServicesList from tarball data for tag: %s", tag.Name))
 
 	endpointData, endpointDataError := parseEndpointData(files)
@@ -237,12 +263,12 @@ func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag, files github.T
 		util.PrintErrorAndExit(endpointDataError)
 	}
 
-	var summaries RegionSchemas
+	var summaries aws.RegionSchemas
 
 	for _, partition := range endpointData.EndpointPartitions {
-		summary := RegionSchema{
+		summary := aws.RegionSchema{
 			PartitionID: partition.ID,
-			Regions:     []RegionSummary{},
+			Regions:     []aws.RegionSummary{},
 		}
 
 		for regionName := range partition.Regions {
@@ -252,7 +278,7 @@ func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag, files github.T
 					servicesInRegion = append(servicesInRegion, serviceName)
 				}
 			}
-			summary.Regions = append(summary.Regions, RegionSummary{
+			summary.Regions = append(summary.Regions, aws.RegionSummary{
 				RegionName: regionName,
 				Services:   servicesInRegion,
 			})
@@ -276,17 +302,14 @@ func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag, files github.T
 	return summaries
 }
 
-// parseEndpointData reads endpoint data from the pre-extracted files map.
 func parseEndpointData(files github.TarballFiles) (EndpointFile, error) {
 	var endpointFile EndpointFile
 
-	// Try both possible locations for the endpoints file
 	var blob []byte
 	var ok bool
 
 	blob, ok = files["botocore/data/endpoints.json"]
 	if !ok {
-		// Some versions might not have the nested path
 		for path, data := range files {
 			if strings.HasSuffix(path, "endpoints.json") {
 				blob = data
@@ -307,20 +330,17 @@ func parseEndpointData(files github.TarballFiles) (EndpointFile, error) {
 	return endpointFile, nil
 }
 
-func sortRegionSchemas(schemas RegionSchemas) {
-	// Sort by PartitionID
+func sortRegionSchemas(schemas aws.RegionSchemas) {
 	sort.Slice(schemas, func(i, j int) bool {
 		return schemas[i].PartitionID < schemas[j].PartitionID
 	})
 
 	for i := range schemas {
-		// Sort each RegionSummary by RegionName
 		sort.Slice(schemas[i].Regions, func(a, b int) bool {
 			return schemas[i].Regions[a].RegionName < schemas[i].Regions[b].RegionName
 		})
 
 		for j := range schemas[i].Regions {
-			// Sort services alphabetically
 			sort.Strings(schemas[i].Regions[j].Services)
 		}
 	}

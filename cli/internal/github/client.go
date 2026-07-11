@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/myerscode/aws-meta/internal/util"
+	"github.com/myerscode/aws-meta/cli/internal/util"
 )
 
 type Client struct {
@@ -23,9 +23,7 @@ func NewGitHubClient(token string) Client {
 }
 
 func (c Client) Fetch(url string) ([]byte, error) {
-
 	req, err := http.NewRequest("GET", url, nil)
-
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +34,6 @@ func (c Client) Fetch(url string) ([]byte, error) {
 	} else if token := os.Getenv("AWSMETA_GITHUB_TOKEN"); token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
 	} else {
-		// No token provided, proceed without authentication
-		// This may result in rate limiting for unauthenticated requests
 		util.LogWarning("No GitHub token provided. API requests may be rate-limited.")
 	}
 
@@ -47,13 +43,11 @@ func (c Client) Fetch(url string) ([]byte, error) {
 	}
 
 	body, err := io.ReadAll(resp.Body)
-
 	if err != nil {
 		return nil, err
 	}
 
 	err = resp.Body.Close()
-
 	if err != nil {
 		return nil, err
 	}

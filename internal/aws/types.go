@@ -1,13 +1,9 @@
 package aws
 
-import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"path/filepath"
-)
-
+// ServiceSchemas maps service IDs to their schema metadata.
 type ServiceSchemas map[string]ServiceSchema
+
+// ServiceSchema holds metadata for a single AWS service.
 type ServiceSchema struct {
 	APIVersion       string
 	ServiceId        string
@@ -21,6 +17,7 @@ type ServiceSchema struct {
 	Operations       []string `json:"Operations"`
 }
 
+// RegionSchemas holds region summaries grouped by partition.
 type RegionSchemas []RegionSchema
 
 // RegionSchema holds region summaries per partition.
@@ -35,30 +32,21 @@ type RegionSummary struct {
 	Services   []string `json:"services"`
 }
 
-func SaveArchiveFile(jsonData any, fileName string) error {
-	metaDataFile := fmt.Sprintf("pkg/data/archive/%s", fileName)
-	return SaveData(jsonData, metaDataFile)
+// PartitionSchemas is a slice of partition metadata.
+type PartitionSchemas []PartitionSchema
+
+// PartitionSchema holds metadata for a single AWS partition.
+type PartitionSchema struct {
+	ID                   string
+	RegionRegex          string
+	DNSSuffix            string
+	DualStackDNSSuffix   string
+	ImplicitGlobalRegion string
+	Regions              []PartitionRegion
 }
 
-func SaveManifestFile(jsonData any, fileName string) error {
-	metaDataFile := fmt.Sprintf("pkg/data/manifests/%s", fileName)
-	return SaveData(jsonData, metaDataFile)
-}
-
-func SaveData(jsonData any, fileName string) error {
-	dir := filepath.Dir(fileName)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("creating directory %s: %w", dir, err)
-	}
-
-	data, err := json.MarshalIndent(jsonData, "", " ")
-	if err != nil {
-		return fmt.Errorf("error marshalling data: %w", err)
-	}
-
-	if err := os.WriteFile(fileName, data, 0644); err != nil {
-		return fmt.Errorf("error writing file %s: %w", fileName, err)
-	}
-
-	return nil
+// PartitionRegion represents a region within a partition.
+type PartitionRegion struct {
+	RegionId   string
+	RegionName string
 }

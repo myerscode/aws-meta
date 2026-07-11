@@ -1,7 +1,7 @@
-package cmd
+package commands
 
 import (
-	"github.com/myerscode/aws-meta/internal/util"
+	"github.com/myerscode/aws-meta/cli/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -14,10 +14,10 @@ var listCmd = &cobra.Command{
 Use the available subcommands to list specific types of metadata:
   - partitions: List AWS partition information
   - services: List AWS service information
+  - regions: List AWS region information
 
 Each subcommand supports optional flags for different output formats.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// Show help when list command is run without subcommands
 		if err := cmd.Help(); err != nil {
 			util.LogError("Error displaying help: " + err.Error())
 		}

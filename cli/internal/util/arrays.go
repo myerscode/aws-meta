@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-// SortStringsAlphabetically returns a new slice with the input strings sorted alphabetically.
+// Sort returns a new slice with the input strings sorted alphabetically.
 func Sort(input []string) []string {
 	sorted := make([]string, len(input))
 	copy(sorted, input)
@@ -14,10 +14,10 @@ func Sort(input []string) []string {
 	return sorted
 }
 
+// SortByField sorts a slice of structs by a named string field.
 func SortByField(slice any, fieldName string) error {
 	v := reflect.ValueOf(slice)
 
-	// Must be a pointer to a slice
 	if v.Kind() != reflect.Pointer || v.Elem().Kind() != reflect.Slice {
 		return fmt.Errorf("expected pointer to slice, got %T", slice)
 	}

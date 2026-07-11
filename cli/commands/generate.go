@@ -1,11 +1,11 @@
-package cmd
+package commands
 
 import (
 	"fmt"
 
-	"github.com/myerscode/aws-meta/internal/aws"
-	"github.com/myerscode/aws-meta/internal/github"
-	"github.com/myerscode/aws-meta/internal/util"
+	"github.com/myerscode/aws-meta/cli/internal/generate"
+	"github.com/myerscode/aws-meta/cli/internal/github"
+	"github.com/myerscode/aws-meta/cli/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -22,10 +22,9 @@ var generateCmd = &cobra.Command{
 			Client: github.NewGitHubClient(""),
 		}
 
-		botocore := aws.Botocore{Repo: botoRepo}
+		botocore := generate.Botocore{Repo: botoRepo}
 
 		tags, err := botocore.Repo.FetchTags(1)
-
 		if err != nil {
 			util.PrintErrorAndExit(err)
 		}

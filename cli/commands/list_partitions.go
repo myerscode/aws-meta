@@ -1,4 +1,4 @@
-package cmd
+package commands
 
 import (
 	"encoding/json"
@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// listPartitionsCmd represents the list partitions command
 var listPartitionsCmd = &cobra.Command{
 	Use:   "partitions",
 	Short: "List AWS Partition information",
@@ -21,18 +20,15 @@ Use the --json flag to output the data in JSON format for programmatic use.`,
 		jsonOutput, _ := cmd.Flags().GetBool("json")
 
 		if jsonOutput {
-			// Get Partition data using existing pkg function
 			partitionData, err := partitions.List()
 			if err != nil {
 				return fmt.Errorf("failed to retrieve Partition data: %w", err)
 			}
 
-			// Handle empty data case - return empty array if no data available
 			if partitionData == nil {
 				partitionData = make(aws.PartitionSchemas, 0)
 			}
 
-			// Marshal to JSON with proper indentation
 			jsonBytes, err := json.MarshalIndent(partitionData, "", "  ")
 			if err != nil {
 				return fmt.Errorf("failed to marshal Partition data to JSON: %w", err)
@@ -40,7 +36,6 @@ Use the --json flag to output the data in JSON format for programmatic use.`,
 
 			fmt.Println(string(jsonBytes))
 		} else {
-			// Todo placeholder for non-JSON mode
 			fmt.Println("TODO: Human-readable Partition listing not yet implemented. Use --json flag for JSON output.")
 		}
 
@@ -49,9 +44,6 @@ Use the --json flag to output the data in JSON format for programmatic use.`,
 }
 
 func init() {
-	// Add partitions subcommand to list command
 	listCmd.AddCommand(listPartitionsCmd)
-
-	// Add --json flag with help text
 	listPartitionsCmd.Flags().BoolP("json", "j", false, "Output partition data in JSON format")
 }

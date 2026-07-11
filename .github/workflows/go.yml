@@ -12,16 +12,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
-          
-      - name: golangci-lint
+
+      - name: Lint library
         uses: golangci/golangci-lint-action@v9
         with:
           version: latest
+
+      - name: Lint CLI
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
+          working-directory: cli
 
   test:
     name: "Test ${{ matrix.os }}"
@@ -31,16 +37,21 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-     
+        uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
-        
-      - name: Run tests
+
+      - name: Test library
         shell: bash
         run: go test -v -race ./...
+
+      - name: Build CLI
+        shell: bash
+        run: go build -v ./...
+        working-directory: cli
 
   coverage:
     name: Coverage
@@ -48,16 +59,16 @@ jobs:
     needs: test
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-     
+        uses: actions/checkout@v4
+
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version-file: 'go.mod'
-        
+
       - name: Run tests with coverage
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
-        
+
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
         with:
@@ -70,20 +81,18 @@ jobs:
     needs: [lint, test, coverage]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v6
         with:
-          go-version: '1.24'
-          
-      - name: Install dependencies
-        run: go mod download
-        
-      - name: Build
+          go-version-file: 'go.mod'
+
+      - name: Build CLI binary
         run: go build -v -o aws-meta .
-        
+        working-directory: cli
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: aws-meta
-          path: aws-meta
+          path: cli/aws-meta

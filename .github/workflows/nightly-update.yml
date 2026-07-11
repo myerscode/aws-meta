@@ -25,6 +25,7 @@ jobs:
 
       - name: Run generate command
         run: go run . generate
+        working-directory: cli
         env:
           AWSMETA_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -35,7 +36,7 @@ jobs:
           git config --local user.name "GitHub Action"
           
           # Only add files that should be updated by the generate command
-          git add pkg/data/manifests/ go.mod go.sum
+          git add pkg/data/manifests/ pkg/data/archive/
           
           if git diff --cached --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT

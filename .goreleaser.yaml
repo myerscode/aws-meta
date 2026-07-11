@@ -4,13 +4,12 @@ project_name: aws-meta
 
 before:
   hooks:
-    # Run tests and linting before building
-    - go mod tidy
     - go test ./...
-    - golangci-lint run
+    - golangci-lint run ./...
 
 builds:
   - id: aws-meta
+    dir: cli
     main: .
     binary: aws-meta
     env:
@@ -74,32 +73,38 @@ release:
   mode: replace
   header: |
     ## AWS Metadata {{ .Tag }}
-    
+
     This release contains the latest AWS service, region, and partition data.
-    
-    ### Go Package Usage
-    
+
+    ### Go Library Usage
+
     ```bash
     go get github.com/myerscode/aws-meta@{{ .Tag }}
     ```
-    
+
     ### Quick Start
-    
+
     ```go
     import (
         "github.com/myerscode/aws-meta/pkg/partitions"
         "github.com/myerscode/aws-meta/pkg/services"
     )
-    
+
     // Get all partitions
     partitions := partitions.AllPartitionNames()
-    
+
     // Get services in a region
     services, err := services.ServiceMetaForRegion("us-east-1")
     ```
-    
+
+    ### CLI Installation
+
+    ```bash
+    go install github.com/myerscode/aws-meta/cli@{{ .Tag }}
+    ```
+
     ### Documentation
-    
+
     - [API Reference](https://github.com/myerscode/aws-meta/blob/main/docs/methods.md)
     - [Partitions Package](https://github.com/myerscode/aws-meta/blob/main/docs/partitions.md)
     - [Services Package](https://github.com/myerscode/aws-meta/blob/main/docs/services.md)
@@ -107,15 +112,14 @@ release:
 
   footer: |
     **Full Changelog**: https://github.com/myerscode/aws-meta/compare/{{ .PreviousTag }}...{{ .Tag }}
-    
+
     ---
-    
-    🤖 This release was automatically generated from the latest AWS data.
-  
+
+    This release was automatically generated from the latest AWS data.
+
   extra_files:
     - glob: ./pkg/data/manifests/**/*
     - glob: ./docs/**/*
 
-# Announce the release
 announce:
-  skip: '{{gt .Patch 0}}'  # Only announce minor/major releases, not patches
+  skip: '{{gt .Patch 0}}'

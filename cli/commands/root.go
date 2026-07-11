@@ -1,13 +1,12 @@
-package cmd
+package commands
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/myerscode/aws-meta/internal/util"
-	"github.com/spf13/pflag"
-
+	"github.com/myerscode/aws-meta/cli/internal/util"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -32,7 +31,6 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.aws-meta.yaml)")
-
 	rootCmd.Flags().BoolP("trace", "t", false, "Show full trace logs.")
 }
 

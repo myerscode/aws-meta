@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+aws-meta
 
 # Test binary, built with `go test -c`
 *.test
@@ -16,6 +17,7 @@
 
 # Go workspace file
 go.work
+go.work.sum
 
 # GoReleaser build artifacts
 dist/

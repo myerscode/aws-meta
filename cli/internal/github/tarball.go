@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/myerscode/aws-meta/internal/util"
+	"github.com/myerscode/aws-meta/cli/internal/util"
 )
 
 // TarballFiles holds extracted file contents keyed by their relative path
@@ -102,7 +102,6 @@ func extractFromTarGz(reader io.Reader, pathPrefixes []string) (TarballFiles, er
 }
 
 // stripTopDir removes the first path component from a tar entry path.
-// GitHub tarballs always have a top-level directory like "reponame-tagname/".
 func stripTopDir(path string) string {
 	idx := strings.IndexByte(path, '/')
 	if idx < 0 {
