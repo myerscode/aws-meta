@@ -8,18 +8,20 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: nightly-update
+  cancel-in-progress: false
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
 
@@ -49,7 +51,6 @@ jobs:
           - Updated partition data
           - Updated region data
           - Updated service data
-          - Updated go.mod/go.sum if needed
           
           Generated on: $current_date
           EOF

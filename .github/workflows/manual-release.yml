@@ -21,30 +21,35 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   manual-release:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
-      
-      - name: golangci-lint
+
+      - name: Lint library
         uses: golangci/golangci-lint-action@v9
         with:
           version: latest
 
-      - name: Install GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+      - name: Lint CLI
+        uses: golangci/golangci-lint-action@v9
         with:
-          install-only: true
+          version: latest
+          working-directory: cli
 
       - name: Get latest tag and calculate next version
         id: get-version
@@ -53,8 +58,9 @@ jobs:
           if [[ -z "$latest" ]]; then
             next="v0.1.0"
           else
-            # Extract version numbers
+            # Extract version numbers (ignore any prerelease suffix, e.g. -rc.1)
             version=${latest#v}
+            version=${version%%-*}
             IFS='.' read -r major minor patch <<< "$version"
             
             case "${{ github.event.inputs.version_type }}" in
@@ -70,6 +76,12 @@ jobs:
             esac
           fi
           
+          # Prereleases get an -rc.1 suffix; goreleaser's `prerelease: auto`
+          # marks the GitHub release as a prerelease for suffixed tags
+          if [ "${{ github.event.inputs.prerelease }}" == "true" ]; then
+            next="${next}-rc.1"
+          fi
+          
           echo "next_tag=$next" >> $GITHUB_OUTPUT
           echo "Previous tag: $latest"
           echo "Next tag: $next"
@@ -82,16 +94,16 @@ jobs:
           git push origin ${{ steps.get-version.outputs.next_tag }}
 
       - name: Checkout the tagged commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.get-version.outputs.next_tag }}
           fetch-depth: 0
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
           version: '~> v2'
-          args: release --clean ${{ github.event.inputs.prerelease == 'true' && '--snapshot' || '' }}
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
