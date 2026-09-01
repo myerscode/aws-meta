@@ -13,6 +13,10 @@ var generateCmd = &cobra.Command{
 	Use:   "generate",
 	Short: "Generate AWS metadata files.",
 	Run: func(cmd *cobra.Command, args []string) {
+		outputDir, err := cmd.Flags().GetString("output")
+		if err != nil {
+			util.PrintErrorAndExit(err)
+		}
 
 		botoRepo := github.Repo{
 			Config: github.Config{
@@ -22,7 +26,7 @@ var generateCmd = &cobra.Command{
 			Client: github.NewGitHubClient(""),
 		}
 
-		botocore := generate.Botocore{Repo: botoRepo}
+		botocore := generate.Botocore{Repo: botoRepo, OutputDir: outputDir}
 
 		tags, err := botocore.Repo.FetchTags(1)
 		if err != nil {
@@ -54,4 +58,5 @@ var generateCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
+	generateCmd.Flags().StringP("output", "o", ".", "directory the generated pkg/data files are written beneath (the repository root)")
 }

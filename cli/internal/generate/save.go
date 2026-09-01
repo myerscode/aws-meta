@@ -7,14 +7,14 @@ import (
 	"path/filepath"
 )
 
-func SaveArchiveFile(jsonData any, fileName string) error {
-	metaDataFile := fmt.Sprintf("pkg/data/archive/%s", fileName)
-	return SaveData(jsonData, metaDataFile)
+// SaveArchiveFile writes an archive data file beneath outputDir/pkg/data/archive.
+func SaveArchiveFile(outputDir string, jsonData any, fileName string) error {
+	return SaveData(jsonData, filepath.Join(outputDir, "pkg", "data", "archive", fileName))
 }
 
-func SaveManifestFile(jsonData any, fileName string) error {
-	metaDataFile := fmt.Sprintf("pkg/data/manifests/%s", fileName)
-	return SaveData(jsonData, metaDataFile)
+// SaveManifestFile writes a manifest data file beneath outputDir/pkg/data/manifests.
+func SaveManifestFile(outputDir string, jsonData any, fileName string) error {
+	return SaveData(jsonData, filepath.Join(outputDir, "pkg", "data", "manifests", fileName))
 }
 
 func SaveData(jsonData any, fileName string) error {

@@ -24,7 +24,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Run generate command
-        run: go run . generate
+        run: go run . generate --output ..
         working-directory: cli
         env:
           AWSMETA_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

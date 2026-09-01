@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -50,7 +51,13 @@ func initConfig() {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		util.LogError(fmt.Sprintf("Error using config file: %s", viper.ConfigFileUsed()))
+		// A missing config file is fine; the CLI works without one. Only
+		// surface genuine read failures (bad YAML, permissions, or an
+		// explicitly requested file that cannot be read).
+		var notFound viper.ConfigFileNotFoundError
+		if !errors.As(err, &notFound) {
+			util.LogError(fmt.Sprintf("Error using config file %s: %s", viper.ConfigFileUsed(), err))
+		}
 	}
 }
 

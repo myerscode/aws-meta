@@ -14,6 +14,9 @@ import (
 
 type Botocore struct {
 	Repo github.Repo
+	// OutputDir is the directory the generated pkg/data files are written
+	// beneath, typically the repository root.
+	OutputDir string
 }
 
 // DataSchema represents a service schema file
@@ -142,12 +145,12 @@ func (bc Botocore) GeneratePartitionList(tag github.RepoTag, files github.Tarbal
 		util.PrintErrorAndExit(err)
 	}
 
-	err = SaveManifestFile(partitionSchemas, "botocore.partitions.json")
+	err = SaveManifestFile(bc.OutputDir, partitionSchemas, "botocore.partitions.json")
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
 
-	err = SaveArchiveFile(partitionSchemas, fmt.Sprintf("botocore.partitions.%s.json", tag.Name))
+	err = SaveArchiveFile(bc.OutputDir, partitionSchemas, fmt.Sprintf("botocore.partitions.%s.json", tag.Name))
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
@@ -214,12 +217,12 @@ func (bc Botocore) GenerateServiceList(tag github.RepoTag, files github.TarballF
 		serviceSchemas[serviceSchema.ServiceId] = serviceSchema
 	}
 
-	err := SaveManifestFile(serviceSchemas, "botocore.services.json")
+	err := SaveManifestFile(bc.OutputDir, serviceSchemas, "botocore.services.json")
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
 
-	err = SaveArchiveFile(serviceSchemas, fmt.Sprintf("botocore.services.%s.json", tag.Name))
+	err = SaveArchiveFile(bc.OutputDir, serviceSchemas, fmt.Sprintf("botocore.services.%s.json", tag.Name))
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
@@ -289,12 +292,12 @@ func (bc Botocore) GenerateRegionServicesList(tag github.RepoTag, files github.T
 
 	sortRegionSchemas(summaries)
 
-	err := SaveManifestFile(summaries, "botocore.regions.json")
+	err := SaveManifestFile(bc.OutputDir, summaries, "botocore.regions.json")
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
 
-	err = SaveArchiveFile(summaries, fmt.Sprintf("botocore.regions.%s.json", tag.Name))
+	err = SaveArchiveFile(bc.OutputDir, summaries, fmt.Sprintf("botocore.regions.%s.json", tag.Name))
 	if err != nil {
 		util.PrintErrorAndExit(err)
 	}
