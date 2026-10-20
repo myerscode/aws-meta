@@ -2102,6 +2102,8 @@
    "CreateKnowledgeBase",
    "CreatePrompt",
    "CreatePromptVersion",
+   "CreateRetrievalInstruction",
+   "CreateRetrievalInstructionVersion",
    "CreateVpcConfiguration",
    "DeleteAgent",
    "DeleteAgentActionGroup",
@@ -2115,6 +2117,7 @@
    "DeleteKnowledgeBaseDocuments",
    "DeletePrompt",
    "DeleteResourcePolicy",
+   "DeleteRetrievalInstruction",
    "DeleteVpcConfiguration",
    "DisassociateAgentCollaborator",
    "DisassociateAgentKnowledgeBase",
@@ -2133,6 +2136,7 @@
    "GetKnowledgeBaseDocuments",
    "GetPrompt",
    "GetResourcePolicy",
+   "GetRetrievalInstruction",
    "GetVpcConfiguration",
    "IngestKnowledgeBaseDocuments",
    "ListAgentActionGroups",
@@ -2149,6 +2153,8 @@
    "ListKnowledgeBaseDocuments",
    "ListKnowledgeBases",
    "ListPrompts",
+   "ListRetrievalInstructionVersions",
+   "ListRetrievalInstructions",
    "ListTagsForResource",
    "ListVpcConfigurations",
    "PrepareAgent",
@@ -2168,6 +2174,7 @@
    "UpdateFlowAlias",
    "UpdateKnowledgeBase",
    "UpdatePrompt",
+   "UpdateRetrievalInstruction",
    "ValidateFlowDefinition"
   ]
  },
@@ -22408,6 +22415,7 @@
    "ListRegions",
    "ListTagsForResource",
    "ListWorkspaceInstances",
+   "ModifyVolume",
    "TagResource",
    "UntagResource"
   ]
