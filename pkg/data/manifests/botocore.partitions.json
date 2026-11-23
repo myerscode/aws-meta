@@ -123,12 +123,20 @@
     "RegionName": "Middle East (Bahrain)"
    },
    {
+    "RegionId": "me-west-1",
+    "RegionName": "Middle East (Saudi Arabia)"
+   },
+   {
     "RegionId": "mx-central-1",
     "RegionName": "Mexico (Central)"
    },
    {
     "RegionId": "sa-east-1",
     "RegionName": "South America (Sao Paulo)"
+   },
+   {
+    "RegionId": "sa-west-1",
+    "RegionName": "South America (Chile)"
    },
    {
     "RegionId": "us-east-1",
