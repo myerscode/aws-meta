@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: nightly-update
@@ -19,6 +20,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # A PAT/App token is needed so the PR triggers CI and the auto-merge workflow
+          # (events created with GITHUB_TOKEN do not trigger other workflows).
+          token: ${{ secrets.NIGHTLY_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Set up Go
         uses: actions/setup-go@v7
@@ -37,6 +42,10 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
+          current_date=$(date +'%Y-%m-%d')
+          git checkout -b "chore/nightly-data-update-$current_date"
+          echo "branch=chore/nightly-data-update-$current_date" >> $GITHUB_OUTPUT
+          
           # Only add files that should be updated by the generate command
           git add pkg/data/manifests/ pkg/data/archive/
           
@@ -44,7 +53,6 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "📊 No changes detected in AWS data"
           else
-            current_date=$(date +'%Y-%m-%d')
             cat > commit_message.txt << EOF
           chore(data): ⏳nightly AWS data update ($current_date)
           
@@ -60,11 +68,18 @@ jobs:
             echo "📊 Changes detected in AWS data, committing updates"
           fi
 
-      - name: Push changes if any
+      - name: Push branch and open pull request
         if: steps.git-diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTLY_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.git-diff.outputs.branch }}
         run: |
-          git push origin main
-          echo "✅ AWS data updates pushed to main branch"
+          # Force: the branch is a dated bot-owned branch, so a same-day rerun replaces it
+          git push --force origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "chore(data): ⏳nightly AWS data update ($(date +'%Y-%m-%d'))" \
+            --body "Automated nightly AWS data update. Auto-merges once required checks pass."
+          echo "✅ AWS data updates pushed to $BRANCH and pull request opened"
 
       - name: Log completion
         run: |
