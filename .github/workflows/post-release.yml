@@ -12,11 +12,9 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  changelog:
-    uses: myerscode/.github/.github/workflows/update-changelog.yml@main
-
   update-documentation:
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +23,9 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          # A PAT is needed so the PR triggers CI and the auto-merge workflow
+          # (events created with GITHUB_TOKEN do not trigger other workflows).
+          token: ${{ secrets.NIGHTLY_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Set release variables
         id: release
@@ -36,6 +37,18 @@ jobs:
           fi
           echo "tag_name=$TAG" >> $GITHUB_OUTPUT
           echo "release_url=https://github.com/${{ github.repository }}/releases/tag/$TAG" >> $GITHUB_OUTPUT
+
+      - name: Get release notes
+        id: notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: |
+          {
+            echo "body<<RELEASE_NOTES_EOF"
+            gh release view "$TAG" --json body -q .body
+            echo "RELEASE_NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update README with latest version
         run: |
@@ -55,7 +68,18 @@ jobs:
             find docs/ -name "*.md" -type f -exec sed -i "s|go get github.com/myerscode/aws-meta$|go get github.com/myerscode/aws-meta@$latest_tag|g" {} \;
           fi
 
-      - name: Commit updates
+      # Replaces the shared update-changelog workflow, which pushes straight to
+      # main and is rejected by branch protection.
+      - name: Update CHANGELOG
+        uses: stefanzweifel/changelog-updater-action@v1
+        with:
+          latest-version: ${{ steps.release.outputs.tag_name }}
+          release-notes: ${{ steps.notes.outputs.body }}
+
+      - name: Commit updates and open pull request
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTLY_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -63,9 +87,15 @@ jobs:
           if git diff --quiet; then
             echo "No documentation updates needed"
           else
-            git add README.md docs/ 2>/dev/null || true
-            git commit -m "docs: update documentation for ${{ steps.release.outputs.tag_name }}"
-            git push origin main
+            branch="chore/post-release-docs-$TAG"
+            git checkout -b "$branch"
+            git add README.md docs/ CHANGELOG.md 2>/dev/null || true
+            git commit -m "docs: update documentation for $TAG"
+            # Force: bot-owned branch, so a rerun replaces it
+            git push --force origin "$branch"
+            gh pr create --base main --head "$branch" \
+              --title "docs: update documentation for $TAG" \
+              --body "Automated post-release docs and changelog update. Auto-merges once required checks pass."
           fi
 
   verify-go-package:
