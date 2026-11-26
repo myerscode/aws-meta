@@ -8697,6 +8697,35 @@
    "AssumeRoleForPodIdentity"
   ]
  },
+ "ELB Proxy": {
+  "APIVersion": "2026-11-20",
+  "ServiceId": "ELB Proxy",
+  "ServiceFullName": "Elastic Load Balancing for Envoy",
+  "EndpointPrefix": "elb-proxy",
+  "SignatureVersion": "v4",
+  "Protocol": "smithy-rpc-v2-cbor",
+  "TargetPrefix": "ELBProxy",
+  "Operations": [
+   "AssociateCertificate",
+   "CreateProxy",
+   "DeleteProxy",
+   "DisassociateCertificate",
+   "GetProxy",
+   "GetProxyAttributes",
+   "GetProxyConfigurationContents",
+   "GetProxyUpdate",
+   "ListCertificateAssociations",
+   "ListProxies",
+   "ListProxyUpdates",
+   "ListProxyVersions",
+   "ListTagsForResource",
+   "TagResource",
+   "UntagResource",
+   "UpdateProxyAttributes",
+   "UpdateProxyConfiguration",
+   "UpdateProxyNetworkConfiguration"
+  ]
+ },
  "EMR": {
   "APIVersion": "2009-03-31",
   "ServiceId": "EMR",
