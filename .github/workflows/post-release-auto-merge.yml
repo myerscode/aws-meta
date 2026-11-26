@@ -1,0 +1,38 @@
+name: Post Release Docs auto-merge
+
+# Post-release-docs copy of the Dependabot auto-merge flow (myerscode/workflows
+# dependabot-auto-merge.yml): approves and arms auto-merge on the post-release docs
+# PR. GitHub completes --auto only once required checks pass and the
+# branch has no conflicts. Requires "Allow auto-merge" and "Allow GitHub Actions
+# to create and approve pull requests" in repo settings.
+
+on:
+  pull_request_target:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: post-release-auto-merge-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    # Only act on the post-release docs branch pushed from this repo, never forks.
+    if: >-
+      startsWith(github.event.pull_request.head.ref, 'chore/post-release-docs-') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Approve the pull request
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr review --approve "$PR_URL"
+
+      - name: Enable auto-merge
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge --auto --squash "$PR_URL"
